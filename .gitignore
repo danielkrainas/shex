@@ -1,0 +1,6 @@
+.godeps
+server/node_modules
+dist
+goble
+goble.exe
+update
