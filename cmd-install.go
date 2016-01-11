@@ -1,6 +1,8 @@
 package main
 
-import ()
+import (
+	"log"
+)
 
 type installCommand struct{}
 
@@ -13,7 +15,7 @@ func (cmd *installCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		self := args[0] == "self"
 		if self {
 			installPath := ""
@@ -22,8 +24,7 @@ func (cmd *installCommand) Execute(args []string) error {
 			}
 
 			if err := installSelf(installPath); err != nil {
-				println(err.Error())
-				return appError{"Could not install locally. Depending on your system's configuration, you may need to run the install as an administrator."}
+				return appError{err, "Could not install locally. Depending on your system's configuration, you may need to run the install as an administrator."}
 			}
 
 			return nil
@@ -36,7 +37,7 @@ func (cmd *installCommand) Execute(args []string) error {
 			return err
 		}
 
-		log("%s@%s installed at %s\n", mod.Name, mod.SemVersion, mod.source)
+		log.Printf("%s@%s installed at %s\n", mod.Name, mod.SemVersion, mod.source)
 		return nil
 	})
 }

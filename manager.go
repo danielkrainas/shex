@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	//"github.com/hashicorp/go-version"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -21,8 +20,6 @@ var (
 const (
 	ProjectId               = "Goble Mod Manager"
 	DefaultGameManifestName = "goble.json"
-	DefaultRemoteAddress    = "http://127.0.0.1:6231/"
-	DefaultRemoteName       = "default"
 	DefaultGameName         = "default"
 	DefaultProfileName      = "default"
 	HomeConfigName          = "config.json"
@@ -34,13 +31,11 @@ const (
 
 type ActionError string
 
-type RemoteList map[string]string
-
 type ModList map[string]string
 
 type GameList map[string]string
 
-type ChannelList map[string]*Channel
+type ChannelMap map[string]*Channel
 
 type GameManifest struct {
 	Mods ModList `json:"mods"`
@@ -54,15 +49,14 @@ type ProfileSource struct {
 
 type ManagerConfig struct {
 	filePath              string
-	channels              ChannelList
-	ActiveProfile         string     `json:"active"`
-	ActiveRemote          string     `json:"remote"`
-	ProfilesPath          string     `json:"profiles"`
-	ChannelsPath          string     `json:"channels"`
-	IncludeDefaultChannel bool       `json:"includeDefaultChannel"`
-	CachePath             string     `json:"cache"`
-	Remotes               RemoteList `json:"remotes"`
-	Games                 GameList   `json:"games"`
+	channels              ChannelMap
+	ActiveProfile         string   `json:"active"`
+	ActiveRemote          string   `json:"remote"`
+	ProfilesPath          string   `json:"profiles"`
+	ChannelsPath          string   `json:"channels"`
+	IncludeDefaultChannel bool     `json:"includeDefaultChannel"`
+	CachePath             string   `json:"cache"`
+	Games                 GameList `json:"games"`
 }
 
 type Profile struct {
@@ -115,6 +109,10 @@ func (ch *Channel) save() error {
 	return ch.saveTo(ch.filePath)
 }
 
+func (ch *Channel) remove() error {
+	return os.Remove(ch.filePath)
+}
+
 func loadChannel(channelPath string) (*Channel, error) {
 	channel := &Channel{
 		filePath: channelPath,
@@ -148,23 +146,6 @@ func copyFile(src string, dst string) (int64, error) {
 
 	err = dstFile.Close()
 	return read, err
-}
-
-func getDefaultRemote() string {
-	return DefaultRemoteAddress
-}
-
-func getRemoteOrDefault(remotes RemoteList, name string) string {
-	if name == "" {
-		name = DefaultRemoteName
-	}
-
-	remote, ok := remotes[name]
-	if !ok {
-		return getDefaultRemote()
-	}
-
-	return remote
 }
 
 func getGameOrDefault(games GameList, name string) string {
@@ -321,8 +302,7 @@ func saveManagerConfig(config *ManagerConfig, homePath string) error {
 func createManagerConfig() *ManagerConfig {
 	config := &ManagerConfig{}
 	config.ActiveProfile = DefaultProfileName
-	config.ActiveRemote = DefaultRemoteName
-	config.Remotes = make(RemoteList)
+	config.ActiveRemote = "default"
 	config.Games = make(GameList)
 	config.IncludeDefaultChannel = true
 	return config
@@ -586,9 +566,9 @@ func createProfileSource(name string, location string) ProfileSource {
 	return source
 }
 
-func loadAvailableChannels(channelsPath string) (ChannelList, error) {
+func loadAvailableChannels(channelsPath string) (ChannelMap, error) {
 	files, err := ioutil.ReadDir(channelsPath)
-	result := make(ChannelList)
+	result := make(ChannelMap)
 	if err == nil {
 		for _, f := range files {
 			isJson, err := filepath.Match("*.json", f.Name())
@@ -670,28 +650,27 @@ func saveGameManifest(gamePath string, manifest *GameManifest) error {
 	return ioutil.WriteFile(manifestPath, jsonContent, 0777)
 }
 
-func execStat(current *executionContext, log logger) error {
-	modPath := current.args[0]
+/*func execStat(current *executionContext) error {
+	modPath := args[0]
 	info, err := getModInfo(modPath)
 	if err != nil {
-		// TODO: embed error
-		return appError{"Could not find mod information"}
+		return appError{err, "Could not find mod information"}
 	}
 
-	log("[%s]\n", modPath)
-	log("name: %s\nversion: %d\nsem version: %s\n", info.Name, info.Version, info.SemVersion)
+	log.Printf("[%s]\n", modPath)
+	log.Printf("name: %s\nversion: %d\nsem version: %s\n", info.Name, info.Version, info.SemVersion)
 	return nil
 }
 
-func execPull(current *executionContext, log logger) error {
-	remoteName := current.args[0]
+func execPull(current *executionContext) error {
+	remoteName := args[0]
 	localName := path.Base(remoteName)
 	if len(current.args) > 1 {
-		localName = current.args[1]
+		localName = args[1]
 	}
 
 	if _, ok := current.profiles[localName]; ok {
-		return appError{fmt.Sprintf("[%s] already exists", localName)}
+		return appError{nil, fmt.Sprintf("[%s] already exists", localName)}
 	}
 
 	var ok bool
@@ -700,29 +679,28 @@ func execPull(current *executionContext, log logger) error {
 	if current.config.ActiveRemote != DefaultRemoteName {
 		current.remote, ok = current.config.Remotes[current.config.ActiveRemote]
 		if !ok {
-			return appError{fmt.Sprintf("remote \"%s\" not found\n", current.config.ActiveRemote)}
+			return appError{nil, fmt.Sprintf("remote \"%s\" not found\n", current.config.ActiveRemote)}
 		}
 	}
 
 	source := createProfileSource(remoteName, current.remote)
 	profile, err := pullProfile(&source, localName, current.config.ProfilesPath)
 	if err != nil {
-		// TODO: embed error
-		return appError{"Could not pull profile from the server"}
+		return appError{err, "Could not pull profile from the server"}
 	}
 
-	log("pulled [%s] to: %s\n", profile.Source.Uid, profile.filePath)
+	log.Printf("pulled [%s] to: %s\n", profile.Source.Uid, profile.filePath)
 	return nil
 }
 
-func execPush(current *executionContext, log logger) error {
-	profileId := current.args[0]
+func execPush(current *executionContext) error {
+	profileId := args[0]
 	profile, ok := current.profiles[profileId]
 	if !ok {
-		return appError{fmt.Sprintf("[%s] not found\n", profileId)}
+		return appError{nil, fmt.Sprintf("[%s] not found\n", profileId)}
 	}
 
-	remoteName := current.args[1]
+	remoteName := args[1]
 	if remoteName != current.config.ActiveRemote {
 		current.remote = getRemoteOrDefault(current.config.Remotes, remoteName)
 	}
@@ -732,27 +710,16 @@ func execPush(current *executionContext, log logger) error {
 	if current.config.ActiveRemote != "default" {
 		remote, ok = current.config.Remotes[current.config.ActiveRemote]
 		if !ok {
-			return appError{fmt.Sprintf("remote \"%s\" not found\n", current.config.ActiveRemote)}
+			return appError{nil, fmt.Sprintf("remote \"%s\" not found\n", current.config.ActiveRemote)}
 		}
 	}
 
 	version, err := pushProfile(profile, remoteName, remote)
 	if err != nil {
-		// TODO: check if net error and use different message
-		return appError{"Could not push profile to server"}
+		return appError{err, "Could not push profile to server"}
 	}
 
-	log("[%s] pushed to %s as %s@%s\n", profileId, current.config.ActiveRemote, remoteName, version)
-	log("import with: `goble pull %s@%s`\n", remoteName, version)
+	log.Printf("[%s] pushed to %s as %s@%s\n", profileId, current.config.ActiveRemote, remoteName, version)
+	log.Printf("import with: `goble pull %s@%s`\n", remoteName, version)
 	return nil
-}
-
-func removeChannel(alias string, config *ManagerConfig) error {
-	if alias == "default" && config.IncludeDefaultChannel {
-		config.IncludeDefaultChannel = false
-	} else {
-		delete(config.Remotes, alias)
-	}
-
-	return nil
-}
+}*/

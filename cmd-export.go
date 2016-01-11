@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 /* Export Command */
@@ -15,11 +16,11 @@ func (cmd *exportProfileCommand) Usage() string {
 }
 
 func (cmd *exportProfileCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		profileId := args[0]
 		profile, ok := current.profiles[profileId]
 		if !ok {
-			return appError{fmt.Sprintf("[%s] not found\n", profileId)}
+			return appError{nil, fmt.Sprintf("[%s] not found\n", profileId)}
 		}
 
 		profilePath := args[1]
@@ -28,7 +29,7 @@ func (cmd *exportProfileCommand) Execute(args []string) error {
 			return err
 		}
 
-		log("[%s] exported to: %s\n", profile.Id, profilePath)
+		log.Printf("[%s] exported to: %s\n", profile.Id, profilePath)
 		return nil
 	})
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -20,11 +21,11 @@ func (cmd *importProfileCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		profilePath := args[0]
 		profile, err := loadProfile(profilePath)
 		if err != nil {
-			return appError{"Could not load profile import"}
+			return appError{err, "Could not load profile import"}
 		}
 
 		if len(args) > 1 {
@@ -37,7 +38,7 @@ func (cmd *importProfileCommand) Execute(args []string) error {
 			return err
 		}
 
-		log("imported \"%s\" to: %s\n", profile.Id, newProfilePath)
+		log.Printf("imported \"%s\" to: %s\n", profile.Id, newProfilePath)
 		return nil
 	})
 }

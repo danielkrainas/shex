@@ -12,22 +12,22 @@ func (cmd *setCommand) Execute(args []string) error {
 
 	target := args[0]
 	value := args[1]
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		switch target {
 		case "profile":
 			if _, ok := current.profiles[value]; ok {
 				current.config.ActiveProfile = value
 			} else {
-				return appError{"profile not found"}
+				return appError{nil, "profile not found"}
 			}
 
 			break
 
 		case "channel":
-			if _, ok := current.config.Remotes[value]; ok {
+			if _, ok := current.channels[value]; ok {
 				current.config.ActiveRemote = value
 			} else {
-				return appError{"channel not found"}
+				return appError{nil, "channel not found"}
 			}
 
 			break

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 /* List Command */
@@ -17,7 +18,7 @@ type listModsCommand struct {
 }
 
 func (cmd *listModsCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		profileOption := commandParser.FindOptionByLongName("profile")
 		useProfile := profileOption != nil && profileOption.IsSet()
 		profileName := ""
@@ -27,7 +28,7 @@ func (cmd *listModsCommand) Execute(args []string) error {
 			if len(cmd.Profile) > 0 {
 				selectedProfile, ok := current.profiles[profileName]
 				if !ok {
-					return appError{fmt.Sprintf("profile %s not found", profileName)}
+					return appError{nil, fmt.Sprintf("profile %s not found", profileName)}
 				}
 
 				mods = selectedProfile.Mods
@@ -36,18 +37,18 @@ func (cmd *listModsCommand) Execute(args []string) error {
 				mods = current.profile.Mods
 			}
 		} else if len(current.config.Games) <= 0 {
-			return appError{"no games attached"}
+			return appError{nil, "no games attached"}
 		} else {
 			gameName := ""
-			if len(current.args) > 0 {
-				gameName = current.args[0]
+			if len(args) > 0 {
+				gameName = args[0]
 			}
 
 			gamePath := getGameOrDefault(current.config.Games, gameName)
 			manifest, err := loadGameManifest(gamePath)
 			if err != nil {
 				// TODO: embed error in appError
-				return appError{fmt.Sprintf("game manifest not found")}
+				return appError{err, fmt.Sprintf("game manifest not found")}
 			}
 
 			mods = manifest.Mods
@@ -56,14 +57,14 @@ func (cmd *listModsCommand) Execute(args []string) error {
 		//fmt.Printf("%-30s   %s\n", "NAME", "VERSION")
 		if len(mods) > 0 {
 			if useProfile {
-				log("Mods installed in profile %s\n", profileName)
+				log.Printf("Mods installed in profile %s\n", profileName)
 			}
 
 			for name, version := range mods {
-				log("%15s@%s\n", name, version)
+				log.Printf("%15s@%s\n", name, version)
 			}
 		} else {
-			log("no mods installed\n")
+			log.Printf("no mods installed\n")
 		}
 
 		return nil
@@ -78,10 +79,10 @@ func (cmd *listConfigCommand) Usage() string {
 }
 
 func (cmd *listConfigCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
-		log("Settings: \n")
-		log("  profile=%s\n", current.config.ActiveProfile)
-		log("  channel=%s\n", current.config.ActiveRemote)
+	return runInContext(func(current *executionContext) error {
+		log.Printf("Settings: \n")
+		log.Printf("  profile=%s\n", current.config.ActiveProfile)
+		log.Printf("  channel=%s\n", current.config.ActiveRemote)
 		return nil
 	})
 }
@@ -90,15 +91,15 @@ func (cmd *listConfigCommand) Execute(args []string) error {
 type listGamesCommand struct{}
 
 func (cmd *listGamesCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		if len(current.config.Games) <= 0 {
-			log("no games found.\n")
+			log.Printf("no games found.\n")
 			return nil
 		}
 
-		log("%12s   %s\n", "ALIAS", "FOLDER")
+		log.Printf("%12s   %s\n", "ALIAS", "FOLDER")
 		for alias, gameFolder := range current.config.Games {
-			log("%12s   %s\n", alias, gameFolder)
+			log.Printf("%12s   %s\n", alias, gameFolder)
 		}
 
 		return nil
@@ -109,10 +110,10 @@ func (cmd *listGamesCommand) Execute(args []string) error {
 type listProfilesCommand struct{}
 
 func (cmd *listProfilesCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
-		log("%15s   %s\n", "ID", "NAME")
+	return runInContext(func(current *executionContext) error {
+		log.Printf("%15s   %s\n", "ID", "NAME")
 		for _, p := range current.profiles {
-			log("%15s   %s\n", p.Id, p.Name)
+			log.Printf("%15s   %s\n", p.Id, p.Name)
 		}
 
 		return nil
@@ -127,12 +128,12 @@ func (cmd *listChannelsCommand) Usage() string {
 }
 
 func (cmd *listChannelsCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		format := "%15s  %10s   %s\n"
-		log(format, "alias", "protocol", "endpoint")
-		log(format, "==========", "========", "==========")
+		log.Printf(format, "alias", "protocol", "endpoint")
+		log.Printf(format, "==========", "========", "==========")
 		for _, ch := range current.channels {
-			log(format, ch.Alias, ch.Protocol, ch.Endpoint)
+			log.Printf(format, ch.Alias, ch.Protocol, ch.Endpoint)
 		}
 
 		return nil

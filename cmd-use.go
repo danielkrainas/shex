@@ -1,11 +1,15 @@
 package main
 
+import (
+	"log"
+)
+
 type useCommand struct{}
 
 func (cmd *useCommand) Execute(args []string) error {
 	// TODO check arg length and show usage
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		// TODO: this needs to uninstall existing mods and install mods from new profile
 		profiles := current.profiles
 		config := current.config
@@ -19,9 +23,9 @@ func (cmd *useCommand) Execute(args []string) error {
 				return err
 			}
 
-			log("active profile set to: %s\n", newProfile.Name)
+			log.Printf("active profile set to: %s\n", newProfile.Name)
 		} else {
-			log("profile already active")
+			log.Printf("profile already active")
 		}
 
 		return nil
