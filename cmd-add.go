@@ -10,7 +10,7 @@ import (
 type addCommand struct{}
 
 func (cmd *addCommand) Usage() string {
-	return "<type> [options]"
+	return ""
 }
 
 type addProfileCommand struct{}

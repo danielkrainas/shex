@@ -8,7 +8,7 @@ import (
 type cleanCommand struct{}
 
 func (cmd *cleanCommand) Usage() string {
-	return ""
+	return "<cache>"
 }
 
 func (cmd *cleanCommand) Execute(args []string) error {

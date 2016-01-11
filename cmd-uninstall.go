@@ -15,12 +15,12 @@ func (cmd *uninstallCommand) Execute(args []string) error {
 		self := args[0] == "self"
 		if self {
 			installPath := ""
-			if len(args) > 0 {
-				installPath = args[0]
+			if len(args) > 1 {
+				installPath = args[1]
 			}
 
 			if err := uninstallSelf(installPath); err != nil {
-				fmt.Printf(err.Error())
+				// TODO: embed error
 				return appError{"Could not uninstall. Depending on your system's configuration, you may need to run the uninstall again as an administrator."}
 			}
 
