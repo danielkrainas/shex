@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
+	"log"
 )
 
 type uninstallCommand struct{}
@@ -11,7 +12,7 @@ func (cmd *uninstallCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		self := args[0] == "self"
 		if self {
 			installPath := ""
@@ -20,8 +21,7 @@ func (cmd *uninstallCommand) Execute(args []string) error {
 			}
 
 			if err := uninstallSelf(installPath); err != nil {
-				// TODO: embed error
-				return appError{"Could not uninstall. Depending on your system's configuration, you may need to run the uninstall again as an administrator."}
+				return appError{err, "Could not uninstall. Depending on your system's configuration, you may need to run the uninstall again as an administrator."}
 			}
 
 			return nil
@@ -31,11 +31,10 @@ func (cmd *uninstallCommand) Execute(args []string) error {
 		gamePath := getGameOrDefault(current.config.Games, name)
 		mod, err := uninstallMod(current.config, gamePath, current.profile, name)
 		if err != nil {
-			// TODO: embed error
-			return appError{"Could not uninstall mod"}
+			return appError{err, "Could not uninstall mod"}
 		}
 
-		log("%s@%s uninstalled\n", mod.Name, mod.SemVersion)
+		log.Printf("%s@%s uninstalled\n", mod.Name, mod.SemVersion)
 		return nil
 	})
 }

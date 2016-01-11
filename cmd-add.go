@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"path"
 	"path/filepath"
 	"strings"
@@ -16,7 +17,7 @@ func (cmd *addCommand) Usage() string {
 type addProfileCommand struct{}
 
 func (cmd *addProfileCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		profileId := args[0]
 		profilePath := ""
 		if len(args) > 1 {
@@ -26,29 +27,29 @@ func (cmd *addProfileCommand) Execute(args []string) error {
 		}
 
 		if profile, ok := current.profiles[profileId]; ok {
-			return appError{fmt.Sprintf("[%s] already exists\n", profile.Id)}
+			return appError{nil, fmt.Sprintf("[%s] already exists\n", profile.Id)}
 		}
 
 		profile := createProfile(profileId)
 		err := saveProfile(profile, profilePath)
 		if err != nil {
-			return appError{fmt.Sprintf("Could not save to: %s", profilePath)}
+			return appError{err, fmt.Sprintf("Could not save to: %s", profilePath)}
 		}
 
-		log("[%s] created at: %s\n", profile.Id, profilePath)
+		log.Printf("[%s] created at: %s\n", profile.Id, profilePath)
 		return nil
 	})
 }
 
 func (cmd *addProfileCommand) Usage() string {
-	return "profile <id> [path]"
+	return "<id> [path]"
 }
 
 /* Add Game Command */
 type addGameCommand struct{}
 
 func (cmd *addGameCommand) Execute(args []string) error {
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		var alias string
 		var gamePath string
 		var err error
@@ -57,30 +58,28 @@ func (cmd *addGameCommand) Execute(args []string) error {
 		if len(args) < 2 {
 			gamePath = alias
 			alias = DefaultGameName
-			log("No alias specified, assuming \"default\"")
+			log.Printf("No alias specified, assuming \"default\"")
 		} else {
 			gamePath, err = filepath.Abs(args[1])
 			if err != nil {
-				return err
+				return appError{err, "couldn't resolve path: " + args[1]}
 			}
 		}
 
 		if _, ok := current.config.Games[alias]; ok {
-			return appError{fmt.Sprintf("The alias \"%s\" is already in use\n", alias)}
+			return appError{nil, fmt.Sprintf("The alias \"%s\" is already in use\n", alias)}
 		}
 
 		if err = attachGameFolder(current.config, alias, gamePath); err != nil {
-			// TODO: embed real error
-			return appError{fmt.Sprintf("Could not attach game \"%s\" at: %s", alias, gamePath)}
+			return appError{err, fmt.Sprintf("Could not attach game \"%s\" at: %s", alias, gamePath)}
 		}
 
 		if err = saveManagerConfig(current.config, current.homePath); err != nil {
-			// TODO: embed real error
-			return appError{fmt.Sprintf("Could not save config: %s", current.homePath)}
+			return appError{err, fmt.Sprintf("Could not save config: %s", current.homePath)}
 		}
 
 		gamePath = current.config.Games[alias]
-		log("added %s as \"%s\"\n", gamePath, alias)
+		log.Printf("added %s as \"%s\"\n", gamePath, alias)
 		return nil
 	})
 }
@@ -95,7 +94,7 @@ type addChannelCommand struct {
 }
 
 func (cmd *addChannelCommand) Usage() string {
-	return ""
+	return "<alias> <endpoint> [options]"
 }
 
 func (cmd *addChannelCommand) Execute(args []string) error {
@@ -103,11 +102,11 @@ func (cmd *addChannelCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		alias := strings.ToLower(args[0])
 		endpoint := args[1]
 		if c, ok := current.config.channels[alias]; ok {
-			log("Overriding %s (=%s:%s)\n", alias, c.Protocol, c.Endpoint)
+			log.Printf("Overriding %s (=%s:%s)\n", alias, c.Protocol, c.Endpoint)
 		}
 
 		c := &Channel{
@@ -120,18 +119,17 @@ func (cmd *addChannelCommand) Execute(args []string) error {
 		}
 
 		if cmd.Protocol != "http" && cmd.Protocol != "https" {
-			return appError{"unknown protocol: " + cmd.Protocol}
+			return appError{nil, "unknown protocol: " + cmd.Protocol}
 		} else {
 			c.Protocol = cmd.Protocol
 		}
 
 		channelPath := filepath.Join(current.config.ChannelsPath, c.Alias+".json")
 		if err := c.saveTo(channelPath); err != nil {
-			// TODO: embed error
-			return appError{"couldn't save channel: " + channelPath}
+			return appError{err, "couldn't save channel: " + channelPath}
 		}
 
-		log("channel added: %s => %s\n", c.Alias, channelPath)
+		log.Printf("channel added: %s => %s\n", c.Alias, channelPath)
 		return nil
 	})
 }

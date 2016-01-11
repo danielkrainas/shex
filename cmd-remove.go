@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	//"os"
+	"log"
 )
 
 /* Remove Command */
@@ -28,11 +28,11 @@ func (cmd *removeProfileCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
-		profileId := current.args[0]
+	return runInContext(func(current *executionContext) error {
+		profileId := args[0]
 		profile, ok := current.profiles[profileId]
 		if !ok {
-			return appError{fmt.Sprintf("Could not find the profile \"%s\"", profileId)}
+			return appError{nil, fmt.Sprintf("Could not find the profile \"%s\"", profileId)}
 		}
 
 		err := dropProfile(profile)
@@ -40,7 +40,7 @@ func (cmd *removeProfileCommand) Execute(args []string) error {
 			return err
 		}
 
-		log("\"%s\" has been removed\n", profile.Name)
+		log.Printf("\"%s\" has been removed\n", profile.Name)
 		return nil
 	})
 }
@@ -57,27 +57,24 @@ func (cmd *removeGameCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		alias := args[0]
 		gamePath, ok := current.config.Games[alias]
 		if !ok {
-			// TODO: embed error
-			return appError{fmt.Sprintf("game \"%s\" does not exist.\n", alias)}
+			return appError{nil, fmt.Sprintf("game \"%s\" does not exist.\n", alias)}
 		}
 
 		err := detachGameFolder(current.config, alias)
 		if err != nil {
-			// TODO: embed error
-			return appError{"Could not remove game from manager"}
+			return appError{err, "Could not remove game from manager"}
 		}
 
 		err = saveManagerConfig(current.config, current.homePath)
 		if err != nil {
-			// TODO: embed error
-			return appError{"Could not save config"}
+			return appError{err, "Could not save config"}
 		}
 
-		log("game removed: %s => %s\n", alias, gamePath)
+		log.Printf("game removed: %s => %s\n", alias, gamePath)
 		return nil
 	})
 }
@@ -94,33 +91,31 @@ func (cmd *removeChannelCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		alias := args[0]
-		var channel string
+		var channel *Channel
 		ok := false
 		if alias == "default" && current.config.IncludeDefaultChannel {
-			channel = getDefaultRemote()
+			channel = defaultChannel
 			ok = true
 		} else {
-			channel, ok = current.config.Remotes[alias]
+			channel, ok = current.channels[alias]
 		}
 
 		if !ok {
-			return appError{"channel not found"}
+			return appError{nil, "channel not found"}
 		}
 
-		err := removeChannel(alias, current.config)
-		if err != nil {
-			// TODO: embed error
-			return appError{"couldn't remove channel"}
+		if channel == defaultChannel {
+			current.config.IncludeDefaultChannel = false
+			if err := saveManagerConfig(current.config, current.homePath); err != nil {
+				return appError{err, "couldn't save channel"}
+			}
+		} else if err := channel.remove(); err != nil {
+			return appError{err, "couldn't remove channel"}
 		}
 
-		err = saveManagerConfig(current.config, current.homePath)
-		if err != nil {
-			return appError{"couldn't save manager config"}
-		}
-
-		log("channel removed: %s => %s\n", alias, channel)
+		log.Printf("channel removed: %s => %s\n", channel.Alias, channel.Endpoint)
 		return nil
 	})
 }

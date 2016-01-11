@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"path/filepath"
 )
 
@@ -21,13 +22,13 @@ func (cmd *cleanCommand) Execute(args []string) error {
 		return usageError{}
 	}
 
-	return runInContext(func(current *executionContext, log logger) error {
+	return runInContext(func(current *executionContext) error {
 		targetPath := filepath.Join(current.homePath, current.config.CachePath)
 		if err := clearDirectory(targetPath); err != nil {
-			return appError{"couldn't clear directory: " + targetPath}
+			return appError{err, "couldn't clear directory: " + targetPath}
 		}
 
-		log("cleared %s => %s", targetType, targetPath)
+		log.Printf("cleared %s => %s", targetType, targetPath)
 		return nil
 	})
 }
