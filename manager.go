@@ -318,7 +318,7 @@ func loadManagerConfig(homePath string) (*ManagerConfig, error) {
 		}
 	}
 
-	configPath := path.Join(homePath, HomeConfigName)
+	configPath := filepath.Join(homePath, HomeConfigName)
 	if err = ensureHomeDirectoryExists(homePath); err != nil {
 		return nil, err
 	}

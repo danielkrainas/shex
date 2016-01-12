@@ -10,10 +10,6 @@ import (
 
 type addCommand struct{}
 
-func (cmd *addCommand) Usage() string {
-	return ""
-}
-
 type addProfileCommand struct{}
 
 func (cmd *addProfileCommand) Execute(args []string) error {
@@ -39,10 +35,6 @@ func (cmd *addProfileCommand) Execute(args []string) error {
 		log.Printf("[%s] created at: %s\n", profile.Id, profilePath)
 		return nil
 	})
-}
-
-func (cmd *addProfileCommand) Usage() string {
-	return "<id> [path]"
 }
 
 /* Add Game Command */
@@ -84,17 +76,9 @@ func (cmd *addGameCommand) Execute(args []string) error {
 	})
 }
 
-func (cmd *addGameCommand) Usage() string {
-	return "<alias> <game_path>"
-}
-
 /* Add Channel Command */
 type addChannelCommand struct {
 	Protocol string `short:"p" long:"protocol" description:"set the protocol to use with the channel"`
-}
-
-func (cmd *addChannelCommand) Usage() string {
-	return "<alias> <endpoint> [options]"
 }
 
 func (cmd *addChannelCommand) Execute(args []string) error {
@@ -135,8 +119,8 @@ func (cmd *addChannelCommand) Execute(args []string) error {
 }
 
 func init() {
-	add, _ := commandParser.AddCommand("add", "adds ", "", &addCommand{})
-	add.AddCommand("profile", "add a profile config", "Creates a new mod profile with the specified id. If a path argument is supplied, the profile won't be imported and will be saved to the path specified.", &addProfileCommand{})
-	add.AddCommand("game", "add a game folder", "Adds the game folder at the specified location to the manager. <alias> may be omitted and \"default\" will be assumed.", &addGameCommand{})
-	add.AddCommand("channel", "add a remote channel", "Adds a remote channel to the manager.", &addChannelCommand{})
+	add, _ := commandParser.AddCommand("add", "", "", &addCommand{})
+	add.AddCommand("profile", "", "", &addProfileCommand{})
+	add.AddCommand("game", "", "", &addGameCommand{})
+	add.AddCommand("channel", "", "", &addChannelCommand{})
 }

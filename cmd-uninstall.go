@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"fmt"
 	"log"
 )
 
@@ -40,6 +39,6 @@ func (cmd *uninstallCommand) Execute(args []string) error {
 }
 
 func init() {
-	c, _ := commandParser.AddCommand("uninstall", "uninstall a mod", "Uninstall a mod from the current profile.", &uninstallCommand{})
+	c, _ := commandParser.AddCommand("uninstall", "", "", &uninstallCommand{})
 	c.Aliases = []string{"u"}
 }

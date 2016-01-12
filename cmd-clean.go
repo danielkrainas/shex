@@ -8,10 +8,6 @@ import (
 /* Clean Command */
 type cleanCommand struct{}
 
-func (cmd *cleanCommand) Usage() string {
-	return "<cache>"
-}
-
 func (cmd *cleanCommand) Execute(args []string) error {
 	if len(args) < 1 {
 		return usageError{}
@@ -34,5 +30,5 @@ func (cmd *cleanCommand) Execute(args []string) error {
 }
 
 func init() {
-	commandParser.AddCommand("clean", "remove groups of assets", "Removes all files from an asset directory", &cleanCommand{})
+	commandParser.AddCommand("clean", "", "", &cleanCommand{})
 }

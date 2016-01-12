@@ -58,10 +58,8 @@ func addInstallationToPath(installPath string) error {
 	}
 
 	v = v + string(os.PathListSeparator) + installPath
-	println("New Path")
-	println(v)
-	return nil
-	//return saveRegEnvValue(pathRegName, v)
+	// TODO: do logging here
+	return saveRegEnvValue(pathRegKey, v)
 }
 
 func removePathInstallation(installPath string) error {
@@ -84,10 +82,8 @@ func removePathInstallation(installPath string) error {
 		}
 	}
 
-	println("New Path")
-	println(v)
-	//	return saveRegEnvValue(pathRegName)
-	return nil
+	// TODO: do logging here
+	return saveRegEnvValue(pathRegKey, v)
 }
 
 func removeSelf(installPath string) error {
@@ -148,6 +144,7 @@ func installSelf(dest string) error {
 		return err
 	}
 
+	broadcastSettingChange()
 	fmt.Printf("installed:\n %s => %s\n", src, selfDest)
 	return nil
 }
@@ -159,7 +156,7 @@ func uninstallSelf(installPath string) error {
 	}
 
 	if installPath == "" {
-		installPath = defaultInstallPath
+		installPath = getDefaultInstallPath()
 	}
 
 	if !dirExists(installPath) {
@@ -174,6 +171,7 @@ func uninstallSelf(installPath string) error {
 		return err
 	}
 
+	broadcastSettingChange()
 	if filepath.Dir(selfPath) == installPath {
 		if err = removeSelf(installPath); err != nil {
 			return err

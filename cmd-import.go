@@ -12,10 +12,6 @@ type importCommand struct{}
 /* Import Profile Command */
 type importProfileCommand struct{}
 
-func (cmd *importProfileCommand) Usage() string {
-	return "<path>"
-}
-
 func (cmd *importProfileCommand) Execute(args []string) error {
 	if len(args) < 1 {
 		return usageError{}
@@ -44,7 +40,6 @@ func (cmd *importProfileCommand) Execute(args []string) error {
 }
 
 func init() {
-	imp, _ := commandParser.AddCommand("import", "import and asset", "import an asset into the manager", &importCommand{})
-
-	imp.AddCommand("profile", "imports a profile config file", "imports a file as a profile config", &importProfileCommand{})
+	imp, _ := commandParser.AddCommand("import", "", "", &importCommand{})
+	imp.AddCommand("profile", "", "", &importProfileCommand{})
 }

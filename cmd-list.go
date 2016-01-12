@@ -74,15 +74,11 @@ func (cmd *listModsCommand) Execute(args []string) error {
 /* List Config Command */
 type listConfigCommand struct{}
 
-func (cmd *listConfigCommand) Usage() string {
-	return ""
-}
-
 func (cmd *listConfigCommand) Execute(args []string) error {
 	return runInContext(func(current *executionContext) error {
 		log.Printf("Settings: \n")
-		log.Printf("  profile=%s\n", current.config.ActiveProfile)
-		log.Printf("  channel=%s\n", current.config.ActiveRemote)
+		log.Printf("    profile=%s\n", current.config.ActiveProfile)
+		log.Printf("    channel=%s\n", current.config.ActiveRemote)
 		return nil
 	})
 }
@@ -123,10 +119,6 @@ func (cmd *listProfilesCommand) Execute(args []string) error {
 /* List Channels Command */
 type listChannelsCommand struct{}
 
-func (cmd *listChannelsCommand) Usage() string {
-	return ""
-}
-
 func (cmd *listChannelsCommand) Execute(args []string) error {
 	return runInContext(func(current *executionContext) error {
 		format := "%15s  %10s   %s\n"
@@ -141,11 +133,11 @@ func (cmd *listChannelsCommand) Execute(args []string) error {
 }
 
 func init() {
-	list, _ := commandParser.AddCommand("list", "list manager data", "", &listCommand{})
+	list, _ := commandParser.AddCommand("list", "", "", &listCommand{})
 	list.SubcommandsOptional = true
-	list.AddCommand("mods", "lists the mods that are installed", "Lists the mods installed in the default or specified game.", &listModsCommand{})
-	list.AddCommand("games", "lists the game folders attached", "Lists the games currently attached to the manager.", &listGamesCommand{})
-	list.AddCommand("profiles", "lists available profiles", "List the available mod profiles", &listProfilesCommand{})
-	list.AddCommand("config", "lists config settings", "Lists the current config settings.", &listConfigCommand{})
-	list.AddCommand("channels", "list available channels", "Lists channels available in the manager.", &listChannelsCommand{})
+	list.AddCommand("mods", "", "", &listModsCommand{})
+	list.AddCommand("games", "", "", &listGamesCommand{})
+	list.AddCommand("profiles", "", "", &listProfilesCommand{})
+	list.AddCommand("config", "", "", &listConfigCommand{})
+	list.AddCommand("channels", "", "", &listChannelsCommand{})
 }

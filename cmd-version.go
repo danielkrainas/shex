@@ -1,6 +1,6 @@
 package main
 
-import "log"
+import "fmt"
 
 type versionCommand struct{}
 
@@ -11,11 +11,11 @@ func (cmd *versionCommand) Execute(args []string) error {
 			version = "0.0.0-development"
 		}
 
-		log.Printf("%s %s\n", ProjectId, version)
+		fmt.Printf("%s %s\n", ProjectId, version)
 		return nil
 	})
 }
 
 func init() {
-	commandParser.AddCommand("version", "prints the manager version", "Prints the manager version.", &versionCommand{})
+	commandParser.AddCommand("version", "", "", &versionCommand{})
 }

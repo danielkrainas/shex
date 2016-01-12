@@ -6,10 +6,6 @@ import (
 
 type installCommand struct{}
 
-func (cmd *installCommand) Usage() string {
-	return "self|<mod>"
-}
-
 func (cmd *installCommand) Execute(args []string) error {
 	if len(args) < 1 {
 		return usageError{}
@@ -43,6 +39,6 @@ func (cmd *installCommand) Execute(args []string) error {
 }
 
 func init() {
-	install, _ := commandParser.AddCommand("install", "install a mod", "Install a mod into the current profile", &installCommand{})
+	install, _ := commandParser.AddCommand("install", "", "", &installCommand{})
 	install.Aliases = []string{"i"}
 }

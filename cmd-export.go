@@ -11,10 +11,6 @@ type exportCommand struct{}
 /* Export Profile Command */
 type exportProfileCommand struct{}
 
-func (cmd *exportProfileCommand) Usage() string {
-	return "<path>"
-}
-
 func (cmd *exportProfileCommand) Execute(args []string) error {
 	return runInContext(func(current *executionContext) error {
 		profileId := args[0]
@@ -36,6 +32,5 @@ func (cmd *exportProfileCommand) Execute(args []string) error {
 
 func init() {
 	export, _ := commandParser.AddCommand("export", "", "", &exportCommand{})
-
-	export.AddCommand("profile", "exports a profile to a file", "Exports a profile to a file specified by path", &exportProfileCommand{})
+	export.AddCommand("profile", "", "", &exportProfileCommand{})
 }

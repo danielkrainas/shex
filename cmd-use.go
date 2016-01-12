@@ -7,7 +7,9 @@ import (
 type useCommand struct{}
 
 func (cmd *useCommand) Execute(args []string) error {
-	// TODO check arg length and show usage
+	if len(args) < 1 {
+		return usageError{}
+	}
 
 	return runInContext(func(current *executionContext) error {
 		// TODO: this needs to uninstall existing mods and install mods from new profile
@@ -32,10 +34,6 @@ func (cmd *useCommand) Execute(args []string) error {
 	})
 }
 
-func (cmd *useCommand) Usage() string {
-	return "use <profile>"
-}
-
 func init() {
-	commandParser.AddCommand("use", "sets the active profile", "sets the active mod profile", &useCommand{})
+	commandParser.AddCommand("use", "", "", &useCommand{})
 }

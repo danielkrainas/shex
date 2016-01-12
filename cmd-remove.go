@@ -8,20 +8,12 @@ import (
 /* Remove Command */
 type removeCommand struct{}
 
-func (cmd *removeCommand) Usage() string {
-	return ""
-}
-
 func (cmd *removeCommand) Execute(args []string) error {
 	return usageError{}
 }
 
 /* Remove Profile Command */
 type removeProfileCommand struct{}
-
-func (cmd *removeProfileCommand) Usage() string {
-	return "<profile>"
-}
 
 func (cmd *removeProfileCommand) Execute(args []string) error {
 	if len(args) < 1 {
@@ -47,10 +39,6 @@ func (cmd *removeProfileCommand) Execute(args []string) error {
 
 /* Remove Game Command */
 type removeGameCommand struct{}
-
-func (cmd *removeGameCommand) Usage() string {
-	return "<game>"
-}
 
 func (cmd *removeGameCommand) Execute(args []string) error {
 	if len(args) < 0 {
@@ -81,10 +69,6 @@ func (cmd *removeGameCommand) Execute(args []string) error {
 
 /* Remove Channel Command */
 type removeChannelCommand struct{}
-
-func (cmd *removeChannelCommand) Usage() string {
-	return ""
-}
 
 func (cmd *removeChannelCommand) Execute(args []string) error {
 	if len(args) < 1 {
@@ -121,8 +105,8 @@ func (cmd *removeChannelCommand) Execute(args []string) error {
 }
 
 func init() {
-	rm, _ := commandParser.AddCommand("remove", "remove manager assets", "Removes a manager asset", &removeCommand{})
-	rm.AddCommand("profile", "remove a profile", "Removes the profile from the manager", &removeProfileCommand{})
-	rm.AddCommand("game", "remove a game folder", "Removes a game by the specified alias from the manager.", &removeGameCommand{})
-	rm.AddCommand("channel", "remove a channel", "Removes a channel from the manager", &removeChannelCommand{})
+	rm, _ := commandParser.AddCommand("remove", "", "", &removeCommand{})
+	rm.AddCommand("profile", "", "", &removeProfileCommand{})
+	rm.AddCommand("game", "", "", &removeGameCommand{})
+	rm.AddCommand("channel", "", "", &removeChannelCommand{})
 }

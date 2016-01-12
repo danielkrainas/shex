@@ -49,5 +49,5 @@ func (cmd *setCommand) Execute(args []string) error {
 }
 
 func init() {
-	commandParser.AddCommand("set", "change a config setting", "Changes a manager config setting.", &setCommand{})
+	commandParser.AddCommand("set", "", "", &setCommand{})
 }
