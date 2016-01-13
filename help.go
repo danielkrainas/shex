@@ -170,6 +170,7 @@ var helpIndex = map[string]*helpData{
 }
 
 func init() {
+	/* Add aliases references */
 	helpIndex["i"] = helpIndex["install"]
 	helpIndex["i self"] = helpIndex["install self"]
 
