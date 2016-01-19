@@ -20,8 +20,7 @@ func (cmd *exportProfileCommand) Execute(args []string) error {
 		}
 
 		profilePath := args[1]
-		err := saveProfile(profile, profilePath)
-		if err != nil {
+		if err := profile.saveTo(profilePath); err != nil {
 			return err
 		}
 

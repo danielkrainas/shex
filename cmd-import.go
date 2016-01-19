@@ -30,7 +30,7 @@ func (cmd *importProfileCommand) Execute(args []string) error {
 		}
 
 		newProfilePath := filepath.Join(current.config.ProfilesPath, profile.Id+".json")
-		if err := saveProfile(&profile, newProfilePath); err != nil {
+		if err := profile.saveTo(newProfilePath); err != nil {
 			return err
 		}
 

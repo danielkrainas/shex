@@ -397,7 +397,7 @@ func uninstallMod(config *ManagerConfig, gamePath string, profile *Profile, name
 	}
 
 	delete(profile.Mods, name)
-	err = saveProfile(profile, profile.filePath)
+	err = profile.save()
 	if err != nil {
 		return mod, err
 	}
@@ -456,7 +456,7 @@ func installMod(config *ManagerConfig, gamePath string, profile *Profile, modTok
 	}
 
 	profile.Mods[remoteInfo.Name] = profileVersion
-	err = saveProfile(profile, profile.filePath)
+	err = profile.save()
 	if err != nil {
 		return mod, err
 	}
@@ -470,18 +470,26 @@ func installMod(config *ManagerConfig, gamePath string, profile *Profile, modTok
 	return getModInfo(localPath)
 }
 
-func profileContainsMod(profile *Profile, name string) bool {
-	_, ok := profile.Mods[name]
+func (p *Profile) contains(modName string) bool {
+	_, ok := p.Mods[modName]
 	return ok
 }
 
-func saveProfile(profile *Profile, profilePath string) error {
-	jsonContent, err := json.Marshal(profile)
+func (p *Profile) saveTo(profilePath string) error {
+	jsonContent, err := json.Marshal(p)
 	if err != nil {
 		return err
 	}
 
 	return ioutil.WriteFile(profilePath, jsonContent, 0777)
+}
+
+func (p *Profile) save() error {
+	if len(p.filePath) < 1 {
+		return errors.New("profile file path not set.")
+	}
+
+	return p.saveTo(p.filePath)
 }
 
 func createProfile(id string) *Profile {
@@ -546,7 +554,7 @@ func pullProfile(source *ProfileSource, localName string, profilesPath string) (
 
 	profilePath := path.Join(profilesPath, localName+".json")
 	profile.filePath = profilePath
-	return profile, saveProfile(profile, profilePath)
+	return profile, profile.saveTo(profilePath)
 }
 
 func pushProfile(profile *Profile, remoteName string, endpoint string) (string, error) {

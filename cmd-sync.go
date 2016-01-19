@@ -42,7 +42,7 @@ func (cmd *syncProfilesCommand) Execute(args []string) error {
 				return appError{err, "couldn't sync with remote server."}
 			}
 
-			err = saveProfile(p, p.filePath)
+			err = p.save()
 			if err != nil {
 				return appError{err, "couldn't save profile."}
 			}
@@ -77,7 +77,7 @@ func (cmd *syncProfileCommand) Execute(args []string) error {
 			return appError{err, "couldn't sync with remote server."}
 		}
 
-		err = saveProfile(profile, profile.filePath)
+		err = profile.save()
 		if err != nil {
 			return appError{err, "couldn't save profile."}
 		}

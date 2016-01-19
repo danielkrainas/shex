@@ -27,7 +27,7 @@ func (cmd *addProfileCommand) Execute(args []string) error {
 		}
 
 		profile := createProfile(profileId)
-		err := saveProfile(profile, profilePath)
+		err := profile.saveTo(profilePath)
 		if err != nil {
 			return appError{err, fmt.Sprintf("Could not save to: %s", profilePath)}
 		}
