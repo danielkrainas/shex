@@ -126,6 +126,14 @@ func loadChannel(channelPath string) (*Channel, error) {
 	return channel, err
 }
 
+func (p *Profile) sync() error {
+	if p.Source == InvalidProfileSource {
+		return nil
+	}
+
+	p.
+}
+
 func copyFile(src string, dst string) (int64, error) {
 	srcFile, err := os.Open(src)
 	if err != nil {

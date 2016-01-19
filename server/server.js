@@ -9,10 +9,35 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+/* Update endpoint */
+app.get('/goble/latest', function (req, res) {
+	// todo: finish writing this
+});
+
+app.get('/goble/latest/check', function (req, res) {
+	var version = req.query.version;
+
+	// no new version
+	res.status(304).end();
+
+	// new version
+	res.send({
+		md5: '',// TODO: implement checksum support on client
+		version: '0.0.1-development',
+		location: '',
+		// TODO: include HMAC of data(-HMAC) with data
+	});
+});
+
+/* API endpoint */
 app.post('/profiles/:user/:profileId', function (req, res) {
 	console.log('profile posted:');
 	console.log(JSON.stringify(req.body, null, 4));
-	res.send('1')
+	res.send('1');// return current version number of profile
+});
+
+app.head('/profiles/:user/:profileId', function (req, res) {
+	//If-Modified-Since: version
 });
 
 app.get('/profiles/:user/:profileId', function (req, res) {
@@ -25,7 +50,11 @@ app.get('/profiles/:user/:profileId', function (req, res) {
 	});
 });
 
-app.get('/mods/:user/:mod/:version/meta', function (req, res) {
+app.get('/mods/:user/:mod/v', function (req, res) {
+	res.json(['0.1.8', '1.0.0']);
+});
+
+app.get('/mods/:user/:mod/v/:version/meta', function (req, res) {
 	if (req.params.version === 'latest') {
 		req.params.version = '1.0.0';
 	}
@@ -40,7 +69,7 @@ app.get('/mods/:user/:mod/:version/meta', function (req, res) {
 	res.json(result);
 });
 
-app.get('/mods/:user/:mod/:version', function (req, res) {
+app.get('/mods/:user/v/:mod/:version', function (req, res) {
 	if (req.params.version === 'latest') {
 		req.params.version = '1.0.0';
 	}
