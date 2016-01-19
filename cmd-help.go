@@ -95,7 +95,7 @@ func (cmd *helpCommand) Execute(args []string) error {
 				}
 			}
 
-			fmt.Printf("\nUse \"%s help <cmd>\" to display help about <cmd>\n\n", commandParser.Command.Name)
+			fmt.Printf("\n\nUse \"%s help <cmd>\" to display help about <cmd>\n\n", commandParser.Command.Name)
 			fmt.Printf("Config:\n    %s\n", current.config.filePath)
 			fmt.Printf("Home:\n    %s\n", current.homePath)
 			fmt.Printf("\n%s@%s %s\n", commandParser.Command.Name, buildVersion, binaryPath)

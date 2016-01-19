@@ -29,6 +29,11 @@ const (
 	defaultHomeFolder       = ".goble"
 )
 
+const (
+	SOURCE_REMOTE = "remote"
+	SOURCE_NONE   = ""
+)
+
 type ActionError string
 
 type ModList map[string]string
@@ -61,15 +66,15 @@ type ManagerConfig struct {
 
 type Profile struct {
 	filePath string
-	Id       string        `json:"id"`
-	Name     string        `json:"name"`
-	Mods     ModList       `json:"mods"`
-	Source   ProfileSource `json:"source"`
-	Revision int32         `json:"rev"`
+	Id       string         `json:"id"`
+	Name     string         `json:"name"`
+	Mods     ModList        `json:"mods"`
+	Source   *ProfileSource `json:"source"`
+	Revision int32          `json:"rev"`
 }
 
 type RemoteProfile struct {
-	source   ProfileSource
+	source   *ProfileSource
 	Name     string  `json:"name"`
 	Mods     ModList `json:"mods"`
 	Revision int32   `json:"rev"`
@@ -88,8 +93,7 @@ type NameVersionToken struct {
 }
 
 var (
-	InvalidProfileSource = ProfileSource{}
-	defaultChannel       = &Channel{
+	defaultChannel = &Channel{
 		Alias:    "default",
 		Endpoint: "127.0.0.1:6231/",
 		Protocol: "http",
@@ -126,12 +130,20 @@ func loadChannel(channelPath string) (*Channel, error) {
 	return channel, err
 }
 
-func (p *Profile) sync() error {
-	if p.Source == InvalidProfileSource {
-		return nil
+func (p *Profile) sync() (int32, int32, error) {
+	if p.Source == nil {
+		return 0, 0, nil
 	}
 
-	p.
+	rp, err := downloadProfile(p.Source)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	old := p.Revision
+	p.Mods = rp.Mods
+	p.Revision = rp.Revision
+	return old, p.Revision, nil
 }
 
 func copyFile(src string, dst string) (int64, error) {
@@ -478,7 +490,7 @@ func createProfile(id string) *Profile {
 	profile.Name = strings.Title(id)
 	profile.Mods = make(ModList)
 	profile.Revision = 1
-	profile.Source = InvalidProfileSource
+	profile.Source = nil
 	return profile
 }
 
@@ -499,8 +511,8 @@ func loadProfile(profilePath string) (Profile, error) {
 	jsonContent, err := ioutil.ReadFile(profilePath)
 	if err == nil {
 		err = json.Unmarshal(jsonContent, &profile)
-		if profile.Source.Type == "" || profile.Source.Type == "none" {
-			profile.Source = InvalidProfileSource
+		if profile.Source.Type == SOURCE_NONE {
+			profile.Source = nil
 		}
 	}
 
@@ -510,7 +522,7 @@ func loadProfile(profilePath string) (Profile, error) {
 func createRemoteProfile(source *ProfileSource) *RemoteProfile {
 	profile := &RemoteProfile{}
 	profile.Mods = make(ModList)
-	profile.source = *source
+	profile.source = source
 	return profile
 }
 
@@ -527,22 +539,13 @@ func pullProfile(source *ProfileSource, localName string, profilesPath string) (
 		return nil, errors.New("source type not supported")
 	}
 
-	url := source.Location + "profiles/" + source.Uid
-	jsonContent, err := downloadContents(url)
+	profile, err := downloadProfileAsLocal(source, localName)
 	if err != nil {
 		return nil, err
 	}
 
-	remoteProfile := createRemoteProfile(source)
-	err = json.Unmarshal(jsonContent, &remoteProfile)
-	if err != nil {
-		return nil, err
-	}
-
-	profile := makeLocalProfile(localName, remoteProfile)
 	profilePath := path.Join(profilesPath, localName+".json")
 	profile.filePath = profilePath
-	profile.Source = *source
 	return profile, saveProfile(profile, profilePath)
 }
 
@@ -551,7 +554,7 @@ func pushProfile(profile *Profile, remoteName string, endpoint string) (string, 
 	remoteProfile := *profile
 	remoteProfile.Id = remoteName
 	remoteProfile.Name = strings.Title(path.Base(remoteName))
-	remoteProfile.Source = InvalidProfileSource
+	remoteProfile.Source = nil
 	remoteProfile.Revision = 0
 	jsonContent, err := json.Marshal(remoteProfile)
 	if err != nil {

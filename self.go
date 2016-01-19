@@ -17,7 +17,7 @@ var (
 
 func createSymLink(goblePath string) error {
 	if fileExists(symlinkPath) {
-		return appError{fmt.Sprintf("could not create symlink, file already exists: %s\n", symlinkPath)}
+		return appError{nil, fmt.Sprintf("could not create symlink, file already exists: %s\n", symlinkPath)}
 	}
 
 	return os.Symlink(goblePath, symlinkPath)
