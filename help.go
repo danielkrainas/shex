@@ -167,6 +167,22 @@ var helpIndex = map[string]*helpData{
 		short: "remove a channel",
 		usage: "<channel>",
 	},
+
+	"sync": &helpData{
+		long:  "Sync a manager asset.",
+		short: "sync manager assets with their sources",
+	},
+
+	"sync profiles": &helpData{
+		long:  "Syncs all applicable profiles with their valid remote sources and updates them to the latest revision.",
+		short: "sync and update all remote profiles",
+	},
+
+	"sync profile": &helpData{
+		long:  "Syncs a local profile with its remote source.",
+		short: "sync a remote profile",
+		usage: "<profile>",
+	},
 }
 
 func init() {
