@@ -27,8 +27,7 @@ func (cmd *removeProfileCommand) Execute(args []string) error {
 			return appError{nil, fmt.Sprintf("Could not find the profile \"%s\"", profileId)}
 		}
 
-		err := dropProfile(profile)
-		if err != nil {
+		if err := profile.drop(); err != nil {
 			return err
 		}
 

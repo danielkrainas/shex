@@ -492,6 +492,17 @@ func (p *Profile) save() error {
 	return p.saveTo(p.filePath)
 }
 
+func (p *Profile) drop() error {
+	if p.filePath != "" && fileExists(p.filePath) {
+		err := os.Remove(p.filePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func createProfile(id string) *Profile {
 	profile := &Profile{}
 	profile.Id = id
@@ -500,17 +511,6 @@ func createProfile(id string) *Profile {
 	profile.Revision = 1
 	profile.Source = nil
 	return profile
-}
-
-func dropProfile(profile *Profile) error {
-	if profile.filePath != "" && fileExists(profile.filePath) {
-		err := os.Remove(profile.filePath)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func loadProfile(profilePath string) (Profile, error) {
@@ -552,9 +552,8 @@ func pullProfile(source *ProfileSource, localName string, profilesPath string) (
 		return nil, err
 	}
 
-	profilePath := path.Join(profilesPath, localName+".json")
-	profile.filePath = profilePath
-	return profile, profile.saveTo(profilePath)
+	profile.filePath = path.Join(profilesPath, localName+".json")
+	return profile, profile.save()
 }
 
 func pushProfile(profile *Profile, remoteName string, endpoint string) (string, error) {
@@ -609,7 +608,7 @@ func loadAvailableChannels(channelsPath string) (ChannelMap, error) {
 	return result, err
 }
 
-func getAvailableProfiles(profilesPath string) (map[string]*Profile, error) {
+func loadAvailableProfiles(profilesPath string) (map[string]*Profile, error) {
 	files, err := ioutil.ReadDir(profilesPath)
 	result := make(map[string]*Profile)
 	if err == nil {

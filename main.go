@@ -52,7 +52,7 @@ func runInContext(fn commandExecutor) error {
 		return err
 	}
 
-	profiles, err := getAvailableProfiles(config.ProfilesPath)
+	profiles, err := loadAvailableProfiles(config.ProfilesPath)
 	if err != nil {
 		return err
 	}
