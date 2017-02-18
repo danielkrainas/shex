@@ -1,6 +1,6 @@
 .PHONY: clean dist
 
-BINARY:=goble
+BINARY:=shex
 WINBINARY:=$(BINARY).exe
 WINTARASSETS:=open_console.cmd
 WINZIPASSETS:=assets/open_console.cmd

@@ -19,14 +19,14 @@ var (
 
 const (
 	ProjectId               = "Goble Mod Manager"
-	DefaultGameManifestName = "goble.json"
+	DefaultGameManifestName = "shex.json"
 	DefaultGameName         = "default"
 	DefaultProfileName      = "default"
 	HomeConfigName          = "config.json"
 	HomeProfilesFolder      = "profiles"
 	HomeCacheFolder         = "cache"
 	HomeChannelsFolder      = "channels"
-	defaultHomeFolder       = ".goble"
+	defaultHomeFolder       = ".shex"
 )
 
 const (
@@ -738,6 +738,6 @@ func execPush(current *executionContext) error {
 	}
 
 	log.Printf("[%s] pushed to %s as %s@%s\n", profileId, current.config.ActiveRemote, remoteName, version)
-	log.Printf("import with: `goble pull %s@%s`\n", remoteName, version)
+	log.Printf("import with: `shex pull %s@%s`\n", remoteName, version)
 	return nil
 }*/

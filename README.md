@@ -10,11 +10,11 @@ Goble may be used as a standalone application or installed to make it more easil
 
 Goble can install itself onto your system using the command `install` command with the `-self` option:
 
-> $ goble install -self
+> $ shex install -self
 
 or to a specific location:
 
-> $ goble install -self /path/to/install/goble/in
+> $ shex install -self /path/to/install/shex/in
 
 If the path does not exist, it will be created. 
 
@@ -22,11 +22,11 @@ If the path does not exist, it will be created.
 
 If you have Go install on your computer, you can use the `go get` command to 
 
-> $ go get github.com/danielkrainas/goble
+> $ go get github.com/danielkrainas/shex
 
 ## Bugs and Feedback
 
-If you see a bug or have a suggestion, feel free to open an issue [here](https://github.com/danielkrainas/goble/issues).
+If you see a bug or have a suggestion, feel free to open an issue [here](https://github.com/danielkrainas/shex/issues).
 
 ## License
 

@@ -19,7 +19,7 @@ const (
 
 var (
 	libUser32                 = syscall.NewLazyDLL("user32.dll")
-	defaultInstallPath string = `${APPDATA}\goble`
+	defaultInstallPath string = `${APPDATA}\shex`
 	pathRegKey         string = "Path"
 )
 

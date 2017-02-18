@@ -7,178 +7,178 @@ type helpData struct {
 }
 
 var helpIndex = map[string]*helpData{
-	"import": &helpData{
+	"import": {
 		long:  "Imports an asset into the manager",
 		short: "import and asset",
 	},
 
-	"import profile": &helpData{
+	"import profile": {
 		long:  "Imports a file as a profile config.",
 		short: "imports a profile config file",
 		usage: "<path>",
 	},
 
-	"export": &helpData{
+	"export": {
 		long:  "Removes all files from an asset directory.",
 		short: "remove groups of assets",
 		usage: "<path>",
 	},
 
-	"export profile": &helpData{
+	"export profile": {
 		long:  "Exports a profile to a file specified by path.",
 		short: "exports a profile to a file",
 		usage: "<path>",
 	},
 
-	"clean": &helpData{
+	"clean": {
 		long:  "Removes all files from an asset directory.",
 		short: "remove groups of assets",
 		usage: "<cache>",
 	},
 
-	"clean cache": &helpData{
+	"clean cache": {
 		long:  "Clears the cache folder of all contents.",
 		short: "empties the cache folder",
 	},
 
-	"add": &helpData{
+	"add": {
 		long:  "Adds assets to the manager using one of the available <command>.",
 		usage: "",
 	},
 
-	"add profile": &helpData{
+	"add profile": {
 		long:  "Creates a new mod profile with the specified id. If a path argument is supplied, the profile won't be imported and will be saved to the path specified.",
 		short: "add a profile config",
 		usage: "<id> [path]",
 	},
 
-	"add game": &helpData{
+	"add game": {
 		short: "add a game folder",
 		long:  "Adds the game folder at the specified location to the manager. <alias> may be omitted and \"default\" will be assumed.",
 		usage: "<alias> <game_path>",
 	},
 
-	"add channel": &helpData{
+	"add channel": {
 		long:  "Adds a remote channel to the manager.",
 		short: "add a remote channel",
 		usage: "<alias> <endpoint> [options]",
 	},
 
-	"help": &helpData{
+	"help": {
 		long:  "Display help and usage information.",
 		short: "displays help information",
 		usage: "<term> [<sub term 1>...<sub term N>]",
 	},
 
-	"install": &helpData{
+	"install": {
 		long:  "Install a mod into the current profile",
 		short: "install a mod",
 		usage: "self|[<mod1>...<modN>]",
 	},
 
-	"install self": &helpData{
-		long:  "Installs goble on the current system.",
-		short: "install goble",
+	"install self": {
+		long:  "Installs shex on the current system.",
+		short: "install shex",
 		usage: "[path]",
 	},
 
-	"list": &helpData{
+	"list": {
 		long:  "List manager data.",
 		short: "list manager data",
 	},
 
-	"list mods": &helpData{
+	"list mods": {
 		long:  "Lists the mods installed in the default or specified game.",
 		short: "lists the mods that are installed",
 	},
 
-	"list games": &helpData{
+	"list games": {
 		long:  "Lists the games currently attached to the manager.",
 		short: "lists the game folders attached",
 	},
 
-	"list profiles": &helpData{
+	"list profiles": {
 		long:  "List the available mod profiles.",
 		short: "lists available profiles",
 		usage: "",
 	},
 
-	"list config": &helpData{
+	"list config": {
 		long:  "Lists the current config settings.",
 		short: "lists config settings",
 		usage: "",
 	},
 
-	"list channels": &helpData{
+	"list channels": {
 		long:  "Lists channels available in the manager.",
 		short: "list available channels",
 		usage: "",
 	},
 
-	"version": &helpData{
+	"version": {
 		long:  "Prints the manager version.",
 		short: "prints the manager version",
 		usage: "",
 	},
 
-	"set": &helpData{
+	"set": {
 		long:  "Changes a manager config setting.",
 		short: "change a config setting",
 		usage: "<key> <value>",
 	},
 
-	"uninstall": &helpData{
+	"uninstall": {
 		long:  "Uninstall a mod from the current profile.",
 		short: "uninstall a mod",
 		usage: "<mod> [<mod1>...<modN>]",
 	},
 
-	"uninstall self": &helpData{
-		long:  "Uninstalls goble from the system.",
-		short: "uninstall goble",
+	"uninstall self": {
+		long:  "Uninstalls shex from the system.",
+		short: "uninstall shex",
 		usage: "self|[<mod1>...<modN>]",
 	},
 
-	"use": &helpData{
+	"use": {
 		long:  "sets the active mod profile",
 		short: "sets the active profile",
 		usage: "<profile>",
 	},
 
-	"remove": &helpData{
+	"remove": {
 		long:  "Removes a manager asset.",
 		short: "remove manager assets",
 	},
 
-	"remove profile": &helpData{
+	"remove profile": {
 		long:  "Removes the profile from the manager.",
 		short: "remove a profile",
 		usage: "<profile>",
 	},
 
-	"remove game": &helpData{
+	"remove game": {
 		long:  "Removes a game by the specified alias from the manager.",
 		short: "remove a game folder",
 		usage: "<game>",
 	},
 
-	"remove channel": &helpData{
+	"remove channel": {
 		long:  "Removes a channel from the manager.",
 		short: "remove a channel",
 		usage: "<channel>",
 	},
 
-	"sync": &helpData{
+	"sync": {
 		long:  "Sync a manager asset.",
 		short: "sync manager assets with their sources",
 	},
 
-	"sync profiles": &helpData{
+	"sync profiles": {
 		long:  "Syncs all applicable profiles with their valid remote sources and updates them to the latest revision.",
 		short: "sync and update all remote profiles",
 	},
 
-	"sync profile": &helpData{
+	"sync profile": {
 		long:  "Syncs a local profile with its remote source.",
 		short: "sync a remote profile",
 		usage: "<profile>",

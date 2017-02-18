@@ -11,16 +11,16 @@ import (
 )
 
 var (
-	defaultInstallPath string = "/var/lib/goble"
-	symlinkPath        string = "/usr/local/bin/goble"
+	defaultInstallPath string = "/var/lib/shex"
+	symlinkPath        string = "/usr/local/bin/shex"
 )
 
-func createSymLink(goblePath string) error {
+func createSymLink(shexPath string) error {
 	if fileExists(symlinkPath) {
 		return appError{nil, fmt.Sprintf("could not create symlink, file already exists: %s\n", symlinkPath)}
 	}
 
-	return os.Symlink(goblePath, symlinkPath)
+	return os.Symlink(shexPath, symlinkPath)
 }
 
 func removeSymLink() error {

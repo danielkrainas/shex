@@ -10,11 +10,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 /* Update endpoint */
-app.get('/goble/latest', function (req, res) {
+app.get('/shex/latest', function (req, res) {
 	// todo: finish writing this
 });
 
-app.get('/goble/latest/check', function (req, res) {
+app.get('/shex/latest/check', function (req, res) {
 	var version = req.query.version;
 
 	// no new version
