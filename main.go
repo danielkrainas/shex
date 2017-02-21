@@ -9,6 +9,7 @@ import (
 	"github.com/danielkrainas/gobag/context"
 
 	"github.com/danielkrainas/shex/cmd/root"
+	_ "github.com/danielkrainas/shex/cmd/use"
 	_ "github.com/danielkrainas/shex/cmd/version"
 )
 
