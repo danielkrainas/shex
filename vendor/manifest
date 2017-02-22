@@ -66,7 +66,7 @@
 			"importpath": "github.com/danielkrainas/gobag/cmd",
 			"repository": "https://github.com/danielkrainas/gobag",
 			"vcs": "git",
-			"revision": "ed1d51b0895a0db4f25983e5d6f6f3981fecec98",
+			"revision": "2a5b0d5b8de4083c6a67725a45fa61d059a8eeb4",
 			"branch": "master",
 			"path": "/cmd",
 			"notests": true
