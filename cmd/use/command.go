@@ -17,7 +17,7 @@ func init() {
 
 func run(ctx context.Context, args []string) error {
 	if len(args) < 1 {
-		return errors.New("profile name not specifiedg")
+		return errors.New("profile name not specified")
 	}
 
 	ctx, err := manager.Context(ctx, "")
