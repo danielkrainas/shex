@@ -1,14 +1,14 @@
-# Goble
+# shex
 
-Goble is a [Stonehearth](http://stonehearth.net/) mod management commandline tool, modeled after other package managers such as npm and bower.
+shex is a [Stonehearth](http://stonehearth.net/) mod management commandline tool, modeled after other package managers such as npm and bower.
 
 ## Installation
 
-Goble may be used as a standalone application or installed to make it more easily accessible. There are several ways to install Goble.
+shex may be used as a standalone application or installed to make it more easily accessible. There are several ways to install shex.
 
-### Using Goble
+### Using shex
 
-Goble can install itself onto your system using the command `install` command with the `-self` option:
+shex can install itself onto your system using the command `install` command with the `-self` option:
 
 > $ shex install -self
 
