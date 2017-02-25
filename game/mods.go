@@ -1,5 +1,11 @@
 package game
 
+import (
+	"strings"
+
+	"github.com/danielkrainas/shex/configuration"
+)
+
 type ModList map[string]string
 
 type GameManifest struct {
@@ -37,7 +43,7 @@ func isModCached(config *ManagerConfig) bool {
 
 }*/
 
-func uninstallMod(config *ManagerConfig, gamePath string, profile *Profile, name string) (*ModInfo, error) {
+func uninstallMod(config *configuration.ManagerConfig, gamePath string, profile *Profile, name string) (*ModInfo, error) {
 	mod := &ModInfo{}
 	gameManifest, err := loadGameManifest(gamePath)
 	if err != nil {
@@ -73,7 +79,7 @@ func uninstallMod(config *ManagerConfig, gamePath string, profile *Profile, name
 	return mod, err
 }
 
-func installMod(config *ManagerConfig, gamePath string, profile *Profile, modToken *NameVersionToken) (*ModInfo, error) {
+func installMod(config *configuration.ManagerConfig, gamePath string, profile *Profile, modToken *NameVersionToken) (*ModInfo, error) {
 	mod := &ModInfo{}
 	ch, ok := config.channels[config.ActiveRemote]
 	if !ok {

@@ -3,10 +3,7 @@ package manager
 import (
 	"context"
 
-	"github.com/danielkrainas/gobag/context"
-
 	"github.com/danielkrainas/shex/configuration"
-	"github.com/danielkrainas/shex/profile"
 )
 
 /* execution context */

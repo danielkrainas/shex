@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path"
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -106,14 +105,4 @@ func getModInfo(modPath string) (*ModInfo, error) {
 	}
 
 	return &manifest.Info, err
-}
-
-func detachGameFolder(config *ManagerConfig, alias string) error {
-	delete(config.Games, alias)
-	return nil
-}
-
-func attachGameFolder(config *ManagerConfig, alias string, gamePath string) error {
-	config.Games[alias] = filepath.Clean(gamePath)
-	return nil
 }

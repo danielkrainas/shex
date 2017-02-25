@@ -2,14 +2,10 @@ package manager
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
 	"io/ioutil"
-	"os"
 	"os/user"
 	"path"
 	"path/filepath"
-	"strings"
 )
 
 const (

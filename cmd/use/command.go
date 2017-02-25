@@ -3,12 +3,12 @@ package use
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
 	"github.com/danielkrainas/gobag/configuration"
-	"github.com/danielkrainas/gobag/context"
+
+	"github.com/danielkrainas/shex/manager"
 )
 
 func init() {

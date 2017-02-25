@@ -1,6 +1,18 @@
 package configuration
 
+import (
+	"path/filepath"
+)
+
 type GameList map[string]string
+
+func (list GameList) Detach(alias string) {
+	delete(list, alias)
+}
+
+func (list GameList) Attach(alias string, gamePath string) {
+	list[alias] = filepath.Clean(gamePath)
+}
 
 type ManagerConfig struct {
 	filePath              string

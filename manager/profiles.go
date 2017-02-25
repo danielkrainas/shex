@@ -1,5 +1,9 @@
 package manager
 
+import (
+	"github.com/danielkrainas/shex/game"
+)
+
 const (
 	SOURCE_REMOTE = "remote"
 	SOURCE_NONE   = ""
@@ -22,7 +26,7 @@ type Profile struct {
 	filePath string
 	Id       string         `json:"id"`
 	Name     string         `json:"name"`
-	Mods     ModList        `json:"mods"`
+	Mods     game.ModList   `json:"mods"`
 	Source   *ProfileSource `json:"source"`
 	Revision int32          `json:"rev"`
 }
