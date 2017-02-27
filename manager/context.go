@@ -2,8 +2,6 @@ package manager
 
 import (
 	"context"
-
-	"github.com/danielkrainas/shex/configuration"
 )
 
 /* execution context */
@@ -12,7 +10,7 @@ type ExecutionContext struct {
 	Channels ChannelMap
 	HomePath string
 	Profiles map[string]*Profile
-	Config   *configuration.Config
+	Config   *Config
 }
 
 func (ctx *ExecutionContext) Value(key interface{}) interface{} {
@@ -30,16 +28,16 @@ func (ctx *ExecutionContext) Value(key interface{}) interface{} {
 	return ctx.Context.Value(key)
 }
 
-func (ctx *ExecutionContext) Profile() *profile.Profile {
+func (ctx *ExecutionContext) Profile() *Profile {
 	return ctx.Profiles[ctx.Config.ActiveProfile]
 }
 
-func (ctx *ExecutionContext) Channel() *channel.Channel {
+func (ctx *ExecutionContext) Channel() *Channel {
 	return ctx.Channels[ctx.Config.ActiveRemote]
 }
 
 func Context(parent context.Context, homePath string) (*ExecutionContext, error) {
-	config, err := configuration.Resolve(homePath)
+	config, err := Resolve(homePath)
 	if err != nil {
 		return nil, err
 	}

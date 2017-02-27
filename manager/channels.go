@@ -1,5 +1,12 @@
 package manager
 
+import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+)
+
 var (
 	defaultChannel = &Channel{
 		Alias:    "default",
@@ -47,11 +54,7 @@ func loadChannel(channelPath string) (*Channel, error) {
 	return channel, err
 }
 
-func LoadAllChannels(pathDir string) ([]*Channel, error) {
-
-}
-
-func loadAvailableChannels(channelsPath string) (ChannelMap, error) {
+func LoadAllChannels(channelsPath string) (ChannelMap, error) {
 	files, err := ioutil.ReadDir(channelsPath)
 	result := make(ChannelMap)
 	if err == nil {
