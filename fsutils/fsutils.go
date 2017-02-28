@@ -1,6 +1,13 @@
 package fsutils
 
-func copyFile(src string, dst string) (int64, error) {
+import (
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+)
+
+func CopyFile(src string, dst string) (int64, error) {
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return -1, err
@@ -22,7 +29,7 @@ func copyFile(src string, dst string) (int64, error) {
 	return read, err
 }
 
-func dirExists(filePath string) bool {
+func DirExists(filePath string) bool {
 	stat, err := os.Stat(filePath)
 	if err != nil || !stat.IsDir() {
 		return false
@@ -31,7 +38,7 @@ func dirExists(filePath string) bool {
 	return true
 }
 
-func clearDirectory(dirPath string) error {
+func ClearDirectory(dirPath string) error {
 	files, err := ioutil.ReadDir(dirPath)
 	if err != nil {
 		return err
@@ -53,7 +60,7 @@ func clearDirectory(dirPath string) error {
 	return nil
 }
 
-func fileExists(filePath string) bool {
+func FileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
 	if err != nil {
 		return false
