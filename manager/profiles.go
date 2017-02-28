@@ -1,37 +1,11 @@
 package manager
 
 import (
-	"github.com/danielkrainas/shex/game"
+	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/fsutils"
 )
 
-const (
-	SOURCE_REMOTE = "remote"
-	SOURCE_NONE   = ""
-)
-
-type ProfileSource struct {
-	Type     string `json:"type"`
-	Uid      string `json:"uid"`
-	Location string `json:"url"`
-}
-
-type RemoteProfile struct {
-	source   *ProfileSource
-	Name     string  `json:"name"`
-	Mods     ModList `json:"mods"`
-	Revision int32   `json:"rev"`
-}
-
-type Profile struct {
-	filePath string
-	Id       string         `json:"id"`
-	Name     string         `json:"name"`
-	Mods     ModList        `json:"mods"`
-	Source   *ProfileSource `json:"source"`
-	Revision int32          `json:"rev"`
-}
-
-func (p *Profile) sync() (int32, int32, error) {
+func SyncProfile(p *v1.Profile) (int32, int32, error) {
 	if p.Source == nil {
 		return 0, 0, nil
 	}
@@ -47,12 +21,7 @@ func (p *Profile) sync() (int32, int32, error) {
 	return old, p.Revision, nil
 }
 
-func (p *Profile) contains(modName string) bool {
-	_, ok := p.Mods[modName]
-	return ok
-}
-
-func (p *Profile) saveTo(profilePath string) error {
+func SaveProfileTo(p *v1.Profile, profilePath string) error {
 	jsonContent, err := json.Marshal(p)
 	if err != nil {
 		return err
@@ -61,16 +30,16 @@ func (p *Profile) saveTo(profilePath string) error {
 	return ioutil.WriteFile(profilePath, jsonContent, 0777)
 }
 
-func (p *Profile) save() error {
+func SaveProfile(p *v1.Profile) error {
 	if len(p.filePath) < 1 {
 		return errors.New("profile file path not set.")
 	}
 
-	return p.saveTo(p.filePath)
+	return SaveProfileTo(p.filePath)
 }
 
-func (p *Profile) drop() error {
-	if p.filePath != "" && fileExists(p.filePath) {
+func DropProfile(p *v1.Profile) error {
+	if p.filePath != "" && fsutils.FileExists(p.filePath) {
 		err := os.Remove(p.filePath)
 		if err != nil {
 			return err
@@ -80,17 +49,7 @@ func (p *Profile) drop() error {
 	return nil
 }
 
-func createProfile(id string) *Profile {
-	profile := &Profile{}
-	profile.Id = id
-	profile.Name = strings.Title(id)
-	profile.Mods = make(ModList)
-	profile.Revision = 1
-	profile.Source = nil
-	return profile
-}
-
-func loadProfile(profilePath string) (Profile, error) {
+func loadProfile(profilePath string) (v1.Profile, error) {
 	var profile Profile
 	profile.filePath = profilePath
 	jsonContent, err := ioutil.ReadFile(profilePath)
@@ -104,22 +63,7 @@ func loadProfile(profilePath string) (Profile, error) {
 	return profile, err
 }
 
-func createRemoteProfile(source *ProfileSource) *RemoteProfile {
-	profile := &RemoteProfile{}
-	profile.Mods = make(ModList)
-	profile.source = source
-	return profile
-}
-
-func makeLocalProfile(localName string, remote *RemoteProfile) *Profile {
-	profile := createProfile(localName)
-	profile.Source = remote.source
-	profile.Revision = remote.Revision
-	profile.Mods = remote.Mods
-	return profile
-}
-
-func pullProfile(source *ProfileSource, localName string, profilesPath string) (*Profile, error) {
+func pullProfile(source *v1.ProfileSource, localName string, profilesPath string) (*v1.Profile, error) {
 	if source.Type != "remote" {
 		return nil, errors.New("source type not supported")
 	}
@@ -133,7 +77,7 @@ func pullProfile(source *ProfileSource, localName string, profilesPath string) (
 	return profile, profile.save()
 }
 
-func pushProfile(profile *Profile, remoteName string, endpoint string) (string, error) {
+func pushProfile(profile *v1.Profile, remoteName string, endpoint string) (string, error) {
 	url := endpoint + "profiles/" + remoteName
 	remoteProfile := *profile
 	remoteProfile.Id = remoteName
@@ -153,7 +97,7 @@ func pushProfile(profile *Profile, remoteName string, endpoint string) (string, 
 	return string(res[:]), nil
 }
 
-func createProfileSource(name string, location string) ProfileSource {
+func createProfileSource(name string, location string) v1.ProfileSource {
 	source := ProfileSource{}
 	source.Location = location
 	source.Uid = name
@@ -161,9 +105,9 @@ func createProfileSource(name string, location string) ProfileSource {
 	return source
 }
 
-func loadAvailableProfiles(profilesPath string) (map[string]*Profile, error) {
+func LoadAllProfiles(profilesPath string) (map[string]*v1.Profile, error) {
 	files, err := ioutil.ReadDir(profilesPath)
-	result := make(map[string]*Profile)
+	result := make(map[string]*v1.Profile)
 	if err == nil {
 		for _, f := range files {
 			isJson, err := filepath.Match("*.json", f.Name())
@@ -183,8 +127,4 @@ func loadAvailableProfiles(profilesPath string) (map[string]*Profile, error) {
 	}
 
 	return result, err
-}
-
-func LoadAllProfiles(pathDir string) ([]*Profile, error) {
-
 }

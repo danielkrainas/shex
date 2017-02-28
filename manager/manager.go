@@ -3,9 +3,14 @@ package manager
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"path"
 	"path/filepath"
+	"strings"
+
+	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/fsutils"
 )
 
 const (
@@ -42,7 +47,7 @@ func getDefaultHomePath() (string, error) {
 }
 
 func ensureHomeDirectoryExists(homePath string) error {
-	if !dirExists(homePath) {
+	if !fsutils.DirExists(homePath) {
 		err := os.Mkdir(homePath, 0777)
 		if err != nil {
 			return err
@@ -53,8 +58,8 @@ func ensureHomeDirectoryExists(homePath string) error {
 	profilesPath := filepath.Join(homePath, HomeProfilesFolder)
 	cachePath := filepath.Join(homePath, HomeCacheFolder)
 	channelsPath := filepath.Join(homePath, HomeChannelsFolder)
-	if !fileExists(configPath) {
-		defaultConfig := createManagerConfig()
+	if !fsutils.FileExists(configPath) {
+		defaultConfig := NewConfig()
 		defaultConfig.ProfilesPath = profilesPath
 
 		jsonContent, err := json.Marshal(&defaultConfig)
@@ -67,20 +72,20 @@ func ensureHomeDirectoryExists(homePath string) error {
 		}
 	}
 
-	if !dirExists(cachePath) {
+	if !fsutils.DirExists(cachePath) {
 		err := os.Mkdir(cachePath, 0777)
 		if err != nil {
 			return err
 		}
 	}
 
-	if !dirExists(channelsPath) {
+	if !fsutils.DirExists(channelsPath) {
 		if err := os.Mkdir(channelsPath, 0777); err != nil {
 			return err
 		}
 	}
 
-	if !dirExists(profilesPath) {
+	if !fsutils.DirExists(profilesPath) {
 		err := os.Mkdir(profilesPath, 0777)
 		if err != nil {
 			return err
@@ -88,8 +93,8 @@ func ensureHomeDirectoryExists(homePath string) error {
 	}
 
 	defaultProfilePath := path.Join(profilesPath, DefaultProfileName+".json")
-	if !fileExists(defaultProfilePath) {
-		defaultProfile := Profile{}
+	if !fsutils.FileExists(defaultProfilePath) {
+		defaultProfile := v1.Profile{}
 		defaultProfile.Id = DefaultProfileName
 		defaultProfile.Mods = make(map[string]string)
 		defaultProfile.Name = strings.ToTitle(DefaultProfileName)

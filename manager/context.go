@@ -2,6 +2,8 @@ package manager
 
 import (
 	"context"
+
+	"github.com/danielkrainas/shex/api/v1"
 )
 
 /* execution context */
@@ -9,7 +11,7 @@ type ExecutionContext struct {
 	context.Context
 	Channels ChannelMap
 	HomePath string
-	Profiles map[string]*Profile
+	Profiles map[string]*v1.Profile
 	Config   *Config
 }
 
@@ -28,7 +30,7 @@ func (ctx *ExecutionContext) Value(key interface{}) interface{} {
 	return ctx.Context.Value(key)
 }
 
-func (ctx *ExecutionContext) Profile() *Profile {
+func (ctx *ExecutionContext) Profile() *v1.Profile {
 	return ctx.Profiles[ctx.Config.ActiveProfile]
 }
 

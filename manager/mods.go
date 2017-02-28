@@ -1,32 +1,18 @@
 package manager
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
 	"strings"
+
+	"github.com/danielkrainas/shex/api/client"
+	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/fsutils"
+	"github.com/danielkrainas/shex/mods"
 )
-
-type ModList map[string]string
-
-type GameManifest struct {
-	Mods ModList `json:"mods"`
-}
-
-type NameVersionToken struct {
-	name    string
-	version string
-}
-
-func parseNameVersionToken(pair string) *NameVersionToken {
-	token := &NameVersionToken{}
-	parts := strings.Split(pair, "@")
-	token.name = parts[0]
-	if len(parts) > 1 {
-		token.version = parts[1]
-	} else {
-		token.version = "latest"
-	}
-
-	return token
-}
 
 func getLocalModPathName(remoteName string, version string) string {
 	parts := strings.Split(remoteName, "/")
@@ -41,24 +27,24 @@ func isModCached(config *ManagerConfig) bool {
 
 }*/
 
-func uninstallMod(config *Config, gamePath string, profile *Profile, name string) (*ModInfo, error) {
-	mod := &ModInfo{}
+func uninstallMod(config *Config, gamePath string, profile *v1.Profile, name string) (*v1.ModInfo, error) {
+	mod := &v1.ModInfo{}
 	gameManifest, err := loadGameManifest(gamePath)
 	if err != nil {
 		return mod, err
 	}
 
 	delete(profile.Mods, name)
-	err = profile.save()
+	err = SaveProfile(profile)
 	if err != nil {
 		return mod, err
 	}
 
-	modsPath := filepath.Join(gamePath, GameModsFolder)
+	modsPath := filepath.Join(gamePath, mods.ModsFolder)
 	version, ok := gameManifest.Mods[name]
 	if ok {
 		modPath := filepath.Join(modsPath, getLocalModPathName(name, version))
-		if fileExists(modPath) {
+		if fsutils.FileExists(modPath) {
 			err = os.Remove(modPath)
 			if err != nil {
 				return mod, err
@@ -77,22 +63,18 @@ func uninstallMod(config *Config, gamePath string, profile *Profile, name string
 	return mod, err
 }
 
-func installMod(config *Config, gamePath string, profile *Profile, modToken *NameVersionToken) (*ModInfo, error) {
-	mod := &ModInfo{}
-	ch, ok := config.channels[config.ActiveRemote]
-	if !ok {
-		return mod, errors.New("channel not found: " + config.ActiveRemote)
-	}
-
+func InstallMod(ctx *ExecutionContext, gamePath string, profile *v1.Profile, modToken *v1.NameVersionToken) (*v1.ModInfo, error) {
+	mod := &v1.ModInfo{}
+	ch := ctx.Channel()
 	source := ch.Protocol + "://" + ch.Endpoint
-	remoteInfo, err := downloadModInfo(source, modToken)
+	remoteInfo, err := client.DownloadModInfo(source, modToken)
 	if err != nil {
 		return mod, err
 	}
 
 	localName := getLocalModPathName(remoteInfo.Name, remoteInfo.Version)
 	localPath := filepath.Join(gamePath, GameModsFolder, localName)
-	err = downloadMod(source, localPath, remoteInfo)
+	err = client.DownloadMod(source, localPath, remoteInfo)
 	if err != nil {
 		return mod, err
 	}
@@ -108,7 +90,7 @@ func installMod(config *Config, gamePath string, profile *Profile, modToken *Nam
 	}
 
 	profile.Mods[remoteInfo.Name] = profileVersion
-	err = profile.save()
+	err = SaveProfile(profile)
 	if err != nil {
 		return mod, err
 	}
@@ -122,16 +104,10 @@ func installMod(config *Config, gamePath string, profile *Profile, modToken *Nam
 	return getModInfo(localPath)
 }
 
-func createGameManifest() *GameManifest {
-	manifest := &GameManifest{}
-	manifest.Mods = make(ModList)
-	return manifest
-}
-
 func loadGameManifest(gamePath string) (*GameManifest, error) {
 	manifest := createGameManifest()
 	manifestPath := path.Join(gamePath, DefaultGameManifestName)
-	if !fileExists(manifestPath) {
+	if !fsutils.FileExists(manifestPath) {
 		return manifest, nil
 	}
 

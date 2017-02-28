@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path"
+
+	"github.com/danielkrainas/shex/api/v1"
 )
 
 const (
@@ -50,14 +52,14 @@ func postContent(url string, bodyContent []byte) ([]byte, error) {
 	return ioutil.ReadAll(res.Body)
 }
 
-func downloadModInfo(source string, mod *NameVersionToken) (*RemoteModInfo, error) {
+func downloadModInfo(source string, mod *v1.NameVersionToken) (*v1.RemoteModInfo, error) {
 	// NOTE: expect remote name to be something like user/package
 
 	// http://somesite.com/mods/admin/cool-package/v/0.1.2/meta
-	url := source + path.Join(ApiModsPath, mod.name, "v", mod.version, ApiModsMetaPathSuffix)
+	url := source + path.Join(ApiModsPath, mod.Name, "v", mod.Version, ApiModsMetaPathSuffix)
 	contents, err := downloadContents(url)
-	info := &RemoteModInfo{}
-	info.source = url
+	info := &v1.RemoteModInfo{}
+	info.Source = url
 	if err != nil {
 		return info, err
 	}
@@ -79,7 +81,7 @@ func downloadModVersionList(source string, modName string) ([]string, error) {
 	return versions, err
 }
 
-func downloadMod(source string, destPath string, info *RemoteModInfo) error {
+func downloadMod(source string, destPath string, info *v1.RemoteModInfo) error {
 	// http://somesite.com/mods/admin/cool-package/v/0.1.2
 	url := source + path.Join(ApiModsPath, info.Name, "v", info.Version)
 
@@ -91,23 +93,23 @@ func downloadMod(source string, destPath string, info *RemoteModInfo) error {
 	return nil
 }
 
-func downloadProfileAsLocal(source *ProfileSource, localName string) (*Profile, error) {
+func downloadProfileAsLocal(source *v1.ProfileSource, localName string) (*v1.Profile, error) {
 	rp, err := downloadProfile(source)
 	if err != nil {
 		return nil, err
 	}
 
-	return makeLocalProfile(localName, rp), nil
+	return v1.MakeLocalProfile(localName, rp), nil
 }
 
-func downloadProfile(source *ProfileSource) (*RemoteProfile, error) {
+func downloadProfile(source *v1.ProfileSource) (*v1.RemoteProfile, error) {
 	url := path.Join(source.Location, ApiProfilesPath, source.Uid)
 	jsonContent, err := downloadContents(url)
 	if err != nil {
 		return nil, err
 	}
 
-	remoteProfile := createRemoteProfile(source)
+	remoteProfile := v1.NewRemoteProfile(source)
 	err = json.Unmarshal(jsonContent, &remoteProfile)
 	return remoteProfile, err
 }

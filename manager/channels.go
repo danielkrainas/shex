@@ -24,7 +24,7 @@ type Channel struct {
 	Endpoint string `json:"endpoint"`
 }
 
-func (ch *Channel) saveTo(channelPath string) error {
+func (ch *Channel) SaveTo(channelPath string) error {
 	jsonContent, err := json.Marshal(ch)
 	if err != nil {
 		return err
@@ -33,11 +33,11 @@ func (ch *Channel) saveTo(channelPath string) error {
 	return ioutil.WriteFile(channelPath, jsonContent, 0777)
 }
 
-func (ch *Channel) save() error {
-	return ch.saveTo(ch.filePath)
+func (ch *Channel) Save() error {
+	return ch.SaveTo(ch.filePath)
 }
 
-func (ch *Channel) remove() error {
+func (ch *Channel) Remove() error {
 	return os.Remove(ch.filePath)
 }
 
