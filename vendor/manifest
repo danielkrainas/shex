@@ -54,6 +54,15 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/danielkrainas/gobag/api/describe",
+			"repository": "https://github.com/danielkrainas/gobag",
+			"vcs": "git",
+			"revision": "2a5b0d5b8de4083c6a67725a45fa61d059a8eeb4",
+			"branch": "master",
+			"path": "/api/describe",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/danielkrainas/gobag/api/errcode",
 			"repository": "https://github.com/danielkrainas/gobag",
 			"vcs": "git",
