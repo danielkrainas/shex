@@ -68,7 +68,7 @@ func FindGameVersion() (string, error) {
 	return result, err
 }
 
-func getModInfo(modPath string) (*v1.ModInfo, error) {
+func GetModInfo(modPath string) (*v1.ModInfo, error) {
 	manifestPath := "/manifest.json"
 	jsonContent, err := getZipResourceContent(modPath, manifestPath, true)
 	if err != nil {

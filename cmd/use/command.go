@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/configuration"
 
 	"github.com/danielkrainas/shex/manager"
 )
@@ -20,16 +19,16 @@ func run(ctx context.Context, args []string) error {
 		return errors.New("profile name not specified")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	mctx, err := manager.Context(ctx, "")
 	if err != nil {
 		return err
 	}
 
 	newProfileName := args[0]
-	if newProfileName != ctx.Config.ActiveProfile {
-		newProfile := ctx.Profiles[newProfileName]
-		ctx.Config.ActiveProfile = newProfile.Id
-		if err := configuration.Save(ctx.Config, ctx.HomePath); err != nil {
+	if newProfileName != mctx.Config.ActiveProfile {
+		newProfile := mctx.Profiles[newProfileName]
+		mctx.Config.ActiveProfile = newProfile.Id
+		if err := manager.SaveConfig(mctx.Config, mctx.HomePath); err != nil {
 			return err
 		}
 

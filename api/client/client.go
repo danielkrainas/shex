@@ -26,7 +26,7 @@ func downloadContents(url string) ([]byte, error) {
 	// smarter to io.Copy to local (temp?) file in case mods happen to be large
 }
 
-func downloadAndCacheContent(url string, cachePath string) (int64, error) {
+func DownloadAndCacheContent(url string, cachePath string) (int64, error) {
 	resp, err := http.Get(url)
 	var read int64
 	if err == nil {
@@ -41,7 +41,7 @@ func downloadAndCacheContent(url string, cachePath string) (int64, error) {
 	return read, err
 }
 
-func postContent(url string, bodyContent []byte) ([]byte, error) {
+func PostContent(url string, bodyContent []byte) ([]byte, error) {
 	body := bytes.NewBuffer(bodyContent)
 	res, err := http.Post(url, "application/json", body)
 	if err != nil {
@@ -52,7 +52,7 @@ func postContent(url string, bodyContent []byte) ([]byte, error) {
 	return ioutil.ReadAll(res.Body)
 }
 
-func downloadModInfo(source string, mod *v1.NameVersionToken) (*v1.RemoteModInfo, error) {
+func DownloadModInfo(source string, mod *v1.NameVersionToken) (*v1.RemoteModInfo, error) {
 	// NOTE: expect remote name to be something like user/package
 
 	// http://somesite.com/mods/admin/cool-package/v/0.1.2/meta
@@ -68,7 +68,7 @@ func downloadModInfo(source string, mod *v1.NameVersionToken) (*v1.RemoteModInfo
 	return info, err
 }
 
-func downloadModVersionList(source string, modName string) ([]string, error) {
+func DownloadModVersionList(source string, modName string) ([]string, error) {
 	// http://somesite.com/mods/admin/cool-package/v
 	url := source + path.Join(ApiModsPath, modName, "v")
 	contents, err := downloadContents(url)
@@ -81,11 +81,11 @@ func downloadModVersionList(source string, modName string) ([]string, error) {
 	return versions, err
 }
 
-func downloadMod(source string, destPath string, info *v1.RemoteModInfo) error {
+func DownloadMod(source string, destPath string, info *v1.RemoteModInfo) error {
 	// http://somesite.com/mods/admin/cool-package/v/0.1.2
 	url := source + path.Join(ApiModsPath, info.Name, "v", info.Version)
 
-	_, err := downloadAndCacheContent(url, destPath)
+	_, err := DownloadAndCacheContent(url, destPath)
 	if err != nil {
 		return err
 	}
@@ -93,8 +93,8 @@ func downloadMod(source string, destPath string, info *v1.RemoteModInfo) error {
 	return nil
 }
 
-func downloadProfileAsLocal(source *v1.ProfileSource, localName string) (*v1.Profile, error) {
-	rp, err := downloadProfile(source)
+func DownloadProfileAsLocal(source *v1.ProfileSource, localName string) (*v1.Profile, error) {
+	rp, err := DownloadProfile(source)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func downloadProfileAsLocal(source *v1.ProfileSource, localName string) (*v1.Pro
 	return v1.MakeLocalProfile(localName, rp), nil
 }
 
-func downloadProfile(source *v1.ProfileSource) (*v1.RemoteProfile, error) {
+func DownloadProfile(source *v1.ProfileSource) (*v1.RemoteProfile, error) {
 	url := path.Join(source.Location, ApiProfilesPath, source.Uid)
 	jsonContent, err := downloadContents(url)
 	if err != nil {

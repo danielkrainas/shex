@@ -39,7 +39,7 @@ func (ctx *ExecutionContext) Channel() *Channel {
 }
 
 func Context(parent context.Context, homePath string) (*ExecutionContext, error) {
-	config, err := Resolve(homePath)
+	config, err := LoadConfig(homePath)
 	if err != nil {
 		return nil, err
 	}

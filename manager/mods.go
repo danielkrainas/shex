@@ -1,10 +1,7 @@
 package manager
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -29,7 +26,7 @@ func isModCached(config *ManagerConfig) bool {
 
 func uninstallMod(config *Config, gamePath string, profile *v1.Profile, name string) (*v1.ModInfo, error) {
 	mod := &v1.ModInfo{}
-	gameManifest, err := loadGameManifest(gamePath)
+	gameManifest, err := mods.LoadGameManifest(gamePath)
 	if err != nil {
 		return mod, err
 	}
@@ -52,7 +49,7 @@ func uninstallMod(config *Config, gamePath string, profile *v1.Profile, name str
 		}
 
 		delete(gameManifest.Mods, name)
-		err = saveGameManifest(gamePath, gameManifest)
+		err = mods.SaveGameManifest(gamePath, gameManifest)
 		if err != nil {
 			return mod, err
 		}
@@ -73,18 +70,18 @@ func InstallMod(ctx *ExecutionContext, gamePath string, profile *v1.Profile, mod
 	}
 
 	localName := getLocalModPathName(remoteInfo.Name, remoteInfo.Version)
-	localPath := filepath.Join(gamePath, GameModsFolder, localName)
+	localPath := filepath.Join(gamePath, mods.ModsFolder, localName)
 	err = client.DownloadMod(source, localPath, remoteInfo)
 	if err != nil {
 		return mod, err
 	}
 
-	gameManifest, err := loadGameManifest(gamePath)
+	gameManifest, err := mods.LoadGameManifest(gamePath)
 	if err != nil {
 		return mod, err
 	}
 
-	profileVersion := modToken.version
+	profileVersion := modToken.Version
 	if profileVersion != "latest" {
 		profileVersion = "^" + profileVersion
 	}
@@ -96,42 +93,12 @@ func InstallMod(ctx *ExecutionContext, gamePath string, profile *v1.Profile, mod
 	}
 
 	gameManifest.Mods[remoteInfo.Name] = remoteInfo.Version
-	err = saveGameManifest(gamePath, gameManifest)
+	err = mods.SaveGameManifest(gamePath, gameManifest)
 	if err != nil {
 		return mod, err
 	}
 
-	return getModInfo(localPath)
-}
-
-func loadGameManifest(gamePath string) (*GameManifest, error) {
-	manifest := createGameManifest()
-	manifestPath := path.Join(gamePath, DefaultGameManifestName)
-	if !fsutils.FileExists(manifestPath) {
-		return manifest, nil
-	}
-
-	jsonContent, err := ioutil.ReadFile(manifestPath)
-	if err != nil {
-		return manifest, err
-	}
-
-	err = json.Unmarshal(jsonContent, manifest)
-	if err != nil {
-		return manifest, err
-	}
-
-	return manifest, nil
-}
-
-func saveGameManifest(gamePath string, manifest *GameManifest) error {
-	jsonContent, err := json.Marshal(manifest)
-	if err != nil {
-		return err
-	}
-
-	manifestPath := path.Join(gamePath, DefaultGameManifestName)
-	return ioutil.WriteFile(manifestPath, jsonContent, 0777)
+	return mods.GetModInfo(localPath)
 }
 
 /*func execStat(current *executionContext) error {

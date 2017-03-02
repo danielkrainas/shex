@@ -1,6 +1,15 @@
 package manager
 
 import (
+	"encoding/json"
+	"errors"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+
+	"github.com/danielkrainas/shex/api/client"
 	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/fsutils"
 )
@@ -10,7 +19,7 @@ func SyncProfile(p *v1.Profile) (int32, int32, error) {
 		return 0, 0, nil
 	}
 
-	rp, err := downloadProfile(p.Source)
+	rp, err := client.DownloadProfile(p.Source)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -31,16 +40,16 @@ func SaveProfileTo(p *v1.Profile, profilePath string) error {
 }
 
 func SaveProfile(p *v1.Profile) error {
-	if len(p.filePath) < 1 {
+	if len(p.FilePath) < 1 {
 		return errors.New("profile file path not set.")
 	}
 
-	return SaveProfileTo(p.filePath)
+	return SaveProfileTo(p, p.FilePath)
 }
 
 func DropProfile(p *v1.Profile) error {
-	if p.filePath != "" && fsutils.FileExists(p.filePath) {
-		err := os.Remove(p.filePath)
+	if p.FilePath != "" && fsutils.FileExists(p.FilePath) {
+		err := os.Remove(p.FilePath)
 		if err != nil {
 			return err
 		}
@@ -50,12 +59,12 @@ func DropProfile(p *v1.Profile) error {
 }
 
 func loadProfile(profilePath string) (v1.Profile, error) {
-	var profile Profile
-	profile.filePath = profilePath
+	var profile v1.Profile
+	profile.FilePath = profilePath
 	jsonContent, err := ioutil.ReadFile(profilePath)
 	if err == nil {
 		err = json.Unmarshal(jsonContent, &profile)
-		if profile.Source.Type == SOURCE_NONE {
+		if profile.Source.Type == v1.SOURCE_NONE {
 			profile.Source = nil
 		}
 	}
@@ -68,13 +77,13 @@ func pullProfile(source *v1.ProfileSource, localName string, profilesPath string
 		return nil, errors.New("source type not supported")
 	}
 
-	profile, err := downloadProfileAsLocal(source, localName)
+	profile, err := client.DownloadProfileAsLocal(source, localName)
 	if err != nil {
 		return nil, err
 	}
 
-	profile.filePath = path.Join(profilesPath, localName+".json")
-	return profile, profile.save()
+	profile.FilePath = path.Join(profilesPath, localName+".json")
+	return profile, SaveProfile(profile)
 }
 
 func pushProfile(profile *v1.Profile, remoteName string, endpoint string) (string, error) {
@@ -89,7 +98,7 @@ func pushProfile(profile *v1.Profile, remoteName string, endpoint string) (strin
 		return "", err
 	}
 
-	res, err := postContent(url, jsonContent)
+	res, err := client.PostContent(url, jsonContent)
 	if err != nil {
 		return "", err
 	}
@@ -98,7 +107,7 @@ func pushProfile(profile *v1.Profile, remoteName string, endpoint string) (strin
 }
 
 func createProfileSource(name string, location string) v1.ProfileSource {
-	source := ProfileSource{}
+	source := v1.ProfileSource{}
 	source.Location = location
 	source.Uid = name
 	source.Type = "remote"

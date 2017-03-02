@@ -1,9 +1,13 @@
 package mods
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"path"
 	"strings"
 
 	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/fsutils"
 )
 
 type ModManifest struct {
@@ -30,4 +34,34 @@ func CreateGameManifest() *GameManifest {
 	}
 
 	return manifest
+}
+
+func LoadGameManifest(gamePath string) (*GameManifest, error) {
+	manifest := CreateGameManifest()
+	manifestPath := path.Join(gamePath, DefaultGameManifestName)
+	if !fsutils.FileExists(manifestPath) {
+		return manifest, nil
+	}
+
+	jsonContent, err := ioutil.ReadFile(manifestPath)
+	if err != nil {
+		return manifest, err
+	}
+
+	err = json.Unmarshal(jsonContent, manifest)
+	if err != nil {
+		return manifest, err
+	}
+
+	return manifest, nil
+}
+
+func SaveGameManifest(gamePath string, manifest *GameManifest) error {
+	jsonContent, err := json.Marshal(manifest)
+	if err != nil {
+		return err
+	}
+
+	manifestPath := path.Join(gamePath, DefaultGameManifestName)
+	return ioutil.WriteFile(manifestPath, jsonContent, 0777)
 }
