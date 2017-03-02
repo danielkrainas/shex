@@ -10,7 +10,6 @@ import (
 	"github.com/danielkrainas/gobag/cmd"
 	"github.com/danielkrainas/gobag/context"
 
-	"github.com/danielkrainas/shex/configuration"
 	"github.com/danielkrainas/shex/manager"
 )
 
@@ -18,7 +17,7 @@ func init() {
 	cmd.Register("set", Info)
 }
 
-func run(ctx context.Context, args []string) error {
+func run(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("resource type not specified")
 	}
@@ -29,7 +28,7 @@ func run(ctx context.Context, args []string) error {
 		return errors.New("setting value missing")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}

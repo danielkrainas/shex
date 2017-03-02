@@ -3,27 +3,25 @@ package install
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
-	"path/filepath"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/context"
 
-	"github.com/danielkrainas/shex/fsutils"
+	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/manager"
+	"github.com/danielkrainas/shex/self"
 )
 
 func init() {
 	cmd.Register("install", Info)
 }
 
-func run(ctx *manager.ExecutionContext, args []string) error {
+func run(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("must specify a target")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
@@ -43,16 +41,16 @@ func run(ctx *manager.ExecutionContext, args []string) error {
 		return nil
 	}
 
-	token := game.ParseNameVersionToken(args[0])
+	token := v1.ParseNameVersionToken(args[0])
 	gamePath := ctx.Config.Games.GameOrDefault("")
-	mod, err := game.InstallMod(ctx.Config, gamePath, ctx.Profile, token)
+	mod, err := manager.InstallMod(ctx.Config, gamePath, ctx.Profile, token)
 	if err != nil {
 		log.Printf("error installing mod: %v", err)
 		log.Printf("could not install mod: %v", err)
 		return nil
 	}
 
-	log.Printf("%s@%s installed at %s\n", mod.Name, mod.SemVersion, mod.source)
+	log.Printf("%s@%s installed at %s\n", mod.Name, mod.SemVersion, mod.Source)
 	return nil
 }
 

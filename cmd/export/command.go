@@ -7,20 +7,20 @@ import (
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/configuration"
-	"github.com/danielkrainas/gobag/context"
+
+	"github.com/danielkrainas/shex/manager"
 )
 
 func init() {
 	cmd.Register("export", Info)
 }
 
-func run(ctx context.Context, args []string) error {
+func run(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("profile name not specifiedg")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func run(ctx context.Context, args []string) error {
 	}
 
 	profilePath := args[1]
-	if err := profile.saveTo(profilePath); err != nil {
+	if err := manager.SaveProfileTo(profile, profilePath); err != nil {
 		log.Printf("error saving profile: %v", err)
 		return nil
 	}

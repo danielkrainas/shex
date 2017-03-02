@@ -14,12 +14,12 @@ func init() {
 	cmd.Register("use", Info)
 }
 
-func run(ctx context.Context, args []string) error {
+func run(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("profile name not specified")
 	}
 
-	mctx, err := manager.Context(ctx, "")
+	mctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}

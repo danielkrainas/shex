@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"syscall"
+
+	"github.com/danielkrainas/shex/fsutils"
 )
 
 var (
@@ -16,27 +18,27 @@ var (
 )
 
 func createSymLink(shexPath string) error {
-	if fileExists(symlinkPath) {
-		return appError{nil, fmt.Sprintf("could not create symlink, file already exists: %s\n", symlinkPath)}
+	if fsutils.FileExists(symlinkPath) {
+		return fmt.Errorf("could not create symlink, file already exists: %s\n", symlinkPath)
 	}
 
 	return os.Symlink(shexPath, symlinkPath)
 }
 
 func removeSymLink() error {
-	if !fileExists(symlinkPath) {
+	if !fsutils.FileExists(symlinkPath) {
 		return nil
 	}
 
 	return syscall.Unlink(symlinkPath)
 }
 
-func uninstallSelf(installPath string) error {
+func UninstallSelf(installPath string) error {
 	if installPath == "" {
 		installPath = defaultInstallPath
 	}
 
-	if !dirExists(installPath) {
+	if !fsutils.DirExists(installPath) {
 		fmt.Printf("no installation found at %s\n", installPath)
 		return nil
 	}
@@ -56,7 +58,7 @@ func uninstallSelf(installPath string) error {
 	return nil
 }
 
-func installSelf(dest string) error {
+func InstallSelf(dest string) error {
 	src, err := osext.Executable()
 	if err != nil {
 		return err
@@ -66,7 +68,7 @@ func installSelf(dest string) error {
 		dest = defaultInstallPath
 	}
 
-	existed := dirExists(dest)
+	existed := fsutils.DirExists(dest)
 	err = os.MkdirAll(dest, 0777)
 	if err != nil {
 		return err
@@ -78,7 +80,7 @@ func installSelf(dest string) error {
 		return nil
 	}
 
-	_, err = copyFile(src, selfDest)
+	_, err = fsutils.CopyFile(src, selfDest)
 	if err != nil {
 		return err
 	}
