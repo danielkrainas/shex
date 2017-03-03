@@ -3,24 +3,24 @@ package uninstall
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/configuration"
-	"github.com/danielkrainas/gobag/context"
+
+	"github.com/danielkrainas/shex/manager"
+	"github.com/danielkrainas/shex/self"
 )
 
 func init() {
 	cmd.Register("uninstall", Info)
 }
 
-func run(ctx context.Context, args []string) error {
+func run(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("profile name not specified")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
@@ -32,8 +32,8 @@ func run(ctx context.Context, args []string) error {
 			installPath = args[1]
 		}
 
-		if err := uninstallSelf(installPath); err != nil {
-			log.Errorf("error uninstalling self: %v", err)
+		if err := self.Uninstall(installPath); err != nil {
+			log.Printf("error uninstalling self: %v", err)
 			log.Println("Could not uninstall. Depending on your system's configuration, you may need to run the uninstall again as an administrator.")
 		}
 
@@ -41,10 +41,11 @@ func run(ctx context.Context, args []string) error {
 	}
 
 	name := args[0]
-	gamePath := game.GetGameOrDefault(ctx.Config.Games, name)
-	mod, err := game.UninstallMod(ctx.Config, gamePath, ctx.Profile, name)
+	//gamePath := game.GetGameOrDefault(ctx.Config.Games, name)
+	gamePath := "" // TODO make this work like above used to?
+	mod, err := manager.UninstallMod(ctx.Config, gamePath, ctx.Profile(), name)
 	if err != nil {
-		log.Errorf("error uninstalling mod: %v", err)
+		log.Printf("error uninstalling mod: %v", err)
 		log.Println("Could not uninstall mod")
 		return nil
 	}

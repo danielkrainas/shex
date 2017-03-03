@@ -33,7 +33,7 @@ func removeSymLink() error {
 	return syscall.Unlink(symlinkPath)
 }
 
-func UninstallSelf(installPath string) error {
+func Uninstall(installPath string) error {
 	if installPath == "" {
 		installPath = defaultInstallPath
 	}
@@ -58,7 +58,7 @@ func UninstallSelf(installPath string) error {
 	return nil
 }
 
-func InstallSelf(dest string) error {
+func Install(dest string) error {
 	src, err := osext.Executable()
 	if err != nil {
 		return err

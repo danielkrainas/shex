@@ -24,7 +24,7 @@ func isModCached(config *ManagerConfig) bool {
 
 }*/
 
-func uninstallMod(config *Config, gamePath string, profile *v1.Profile, name string) (*v1.ModInfo, error) {
+func UninstallMod(config *Config, gamePath string, profile *v1.Profile, name string) (*v1.ModInfo, error) {
 	mod := &v1.ModInfo{}
 	gameManifest, err := mods.LoadGameManifest(gamePath)
 	if err != nil {
