@@ -5,10 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"path/filepath"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/context"
 
 	"github.com/danielkrainas/shex/manager"
 )
@@ -68,8 +66,8 @@ func run(parent context.Context, args []string) error {
 		return fmt.Errorf("unknown setting key: %s", target)
 	}
 
-	if err := configuration.Save(ctx.Config, ctx.HomePath); err != nil {
-		log.Errorf("error saving config: %v", err)
+	if err := manager.SaveConfig(ctx.Config, ctx.HomePath); err != nil {
+		log.Printf("error saving config: %v", err)
 		log.Println("couldn't save configuration")
 		return nil
 	}
