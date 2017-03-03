@@ -55,7 +55,7 @@ func Context(parent context.Context, homePath string) (*ExecutionContext, error)
 	}
 
 	if config.IncludeDefaultChannel {
-		channels[defaultChannel.Alias] = defaultChannel
+		channels[DefaultChannel.Alias] = DefaultChannel
 	}
 
 	ctx := &ExecutionContext{

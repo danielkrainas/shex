@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	defaultChannel = &Channel{
+	DefaultChannel = &Channel{
 		Alias:    "default",
 		Endpoint: "127.0.0.1:6231/",
 		Protocol: "http",

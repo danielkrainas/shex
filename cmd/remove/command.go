@@ -3,37 +3,15 @@ package remove
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/configuration"
-	"github.com/danielkrainas/gobag/context"
+
+	"github.com/danielkrainas/shex/manager"
 )
 
 func init() {
 	cmd.Register("remove", Info)
-}
-
-func run(ctx context.Context, args []string) error {
-	if len(args) < 1 {
-		return errors.New("profile name not specified")
-	}
-
-	newProfileName := args[0]
-	if newProfileName != ctx.Config.ActiveProfile {
-		newProfile := ctx.Profiles[newProfileName]
-		ctx.Config.ActiveProfile = newProfile.Id
-		if err := configuration.Save(ctx.Config, ctx.HomePath); err != nil {
-			return err
-		}
-
-		log.Printf("active profile set to: %s\n", newProfile.Name)
-	} else {
-		log.Printf("profile already active")
-	}
-
-	return nil
 }
 
 var (
@@ -65,23 +43,24 @@ var (
 )
 
 /* Remove Profile Command */
-func removeProfile(ctx context.Context, args []string) error {
+func removeProfile(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("you must specify a profile")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
 
 	profileId := args[0]
-	profile, ok := current.profiles[profileId]
+	profile, ok := ctx.Profiles[profileId]
 	if !ok {
-		return appError{nil, fmt.Sprintf("Could not find the profile %q", profileId)}
+		log.Printf("Could not find the profile %q", profileId)
+		return nil
 	}
 
-	if err := profile.drop(); err != nil {
+	if err := manager.DropProfile(profile); err != nil {
 		return err
 	}
 
@@ -90,33 +69,26 @@ func removeProfile(ctx context.Context, args []string) error {
 }
 
 /* Remove Game Command */
-func removeGame(ctx context.Context, args []string) error {
+func removeGame(parent context.Context, args []string) error {
 	if len(args) < 0 {
 		return errors.New("you must specify a game alias")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
 
 	alias := args[0]
-	gamePath, ok := current.config.Games[alias]
+	gamePath, ok := ctx.Config.Games[alias]
 	if !ok {
 		log.Printf("game %q does not exist.", alias)
 		return nil
 	}
 
-	err := game.DetachGameFolder(current.config, alias)
-	if err != nil {
-		log.Errorf("error removing game folder: %v", err)
-		log.Println("Could not remove game from manager")
-		return nil
-	}
-
-	err = configuration.Save(ctx.Config, ctx.HomePath)
-	if err != nil {
-		log.Errorf("error saving configuration: %v", err)
+	ctx.Config.Games.Detach(alias)
+	if err := manager.SaveConfig(ctx.Config, ctx.HomePath); err != nil {
+		log.Printf("error saving configuration: %v", err)
 		log.Println("could not save configuration")
 		return nil
 	}
@@ -126,24 +98,24 @@ func removeGame(ctx context.Context, args []string) error {
 }
 
 /* Remove Channel Command */
-func removeChannel(ctx context.Context, args []string) error {
+func removeChannel(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("you must specify a channel alias")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
 
 	alias := args[0]
-	var channel *Channel
+	var channel *manager.Channel
 	ok := false
-	if alias == "default" && current.config.IncludeDefaultChannel {
-		channel = defaultChannel
+	if alias == "default" && ctx.Config.IncludeDefaultChannel {
+		channel = manager.DefaultChannel
 		ok = true
 	} else {
-		channel, ok = current.channels[alias]
+		channel, ok = ctx.Channels[alias]
 	}
 
 	if !ok {
@@ -151,15 +123,15 @@ func removeChannel(ctx context.Context, args []string) error {
 		return nil
 	}
 
-	if channel == defaultChannel {
-		current.config.IncludeDefaultChannel = false
-		if err := saveManagerConfig(current.config, current.homePath); err != nil {
-			log.Errorf("error saving configuration: %v", err)
+	if channel == manager.DefaultChannel {
+		ctx.Config.IncludeDefaultChannel = false
+		if err := manager.SaveConfig(ctx.Config, ctx.HomePath); err != nil {
+			log.Printf("error saving configuration: %v", err)
 			log.Println("couldn't save configuration")
 			return nil
 		}
-	} else if err := channel.remove(); err != nil {
-		log.Errorf("error removing channel: %v", err)
+	} else if err := channel.Remove(); err != nil {
+		log.Printf("error removing channel: %v", err)
 		log.Println("couldn't remove channel")
 		return nil
 	}
