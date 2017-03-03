@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/context"
 
 	"github.com/danielkrainas/shex/fsutils"
 	"github.com/danielkrainas/shex/manager"
@@ -18,12 +17,12 @@ func init() {
 	cmd.Register("clean", Info)
 }
 
-func run(ctx context.Context, args []string) error {
+func run(parent context.Context, args []string) error {
 	if len(args) < 1 {
 		return errors.New("resource type not specified")
 	}
 
-	ctx, err := manager.Context(ctx, "")
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
@@ -33,7 +32,7 @@ func run(ctx context.Context, args []string) error {
 		return errors.New("resource must be one of: `cache`")
 	}
 
-	targetPath := filepath.Join(current.homePath, ctx.Config.CachePath)
+	targetPath := filepath.Join(ctx.HomePath, ctx.Config.CachePath)
 	if err := fsutils.ClearDirectory(targetPath); err != nil {
 		return fmt.Errorf("error clearing %q: %v", targetPath, err)
 	}
