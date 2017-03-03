@@ -33,8 +33,8 @@ func run(parent context.Context, args []string) error {
 			installPath = args[1]
 		}
 
-		if err := self.InstallSelf(installPath); err != nil {
-			log.Errorf("error installing self: %v", err)
+		if err := self.Install(installPath); err != nil {
+			log.Printf("error installing self: %v", err)
 			log.Printf("could not install locally. Depending on your system's configuration, you may need to run the install as an administrator.")
 		}
 
@@ -42,8 +42,8 @@ func run(parent context.Context, args []string) error {
 	}
 
 	token := v1.ParseNameVersionToken(args[0])
-	gamePath := ctx.Config.Games.GameOrDefault("")
-	mod, err := manager.InstallMod(ctx.Config, gamePath, ctx.Profile, token)
+	gamePath := manager.GetGameOrDefault(ctx.Config.Games, "")
+	mod, err := manager.InstallMod(ctx, gamePath, ctx.Profile(), token)
 	if err != nil {
 		log.Printf("error installing mod: %v", err)
 		log.Printf("could not install mod: %v", err)

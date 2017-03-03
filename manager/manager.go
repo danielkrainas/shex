@@ -24,7 +24,7 @@ const (
 	defaultHomeFolder       = ".shex"
 )
 
-func getGameOrDefault(games GameList, name string) string {
+func GetGameOrDefault(games GameList, name string) string {
 	if name == "" {
 		name = DefaultGameName
 	}
