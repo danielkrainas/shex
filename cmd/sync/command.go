@@ -2,14 +2,12 @@ package sync
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/configuration"
-	"github.com/danielkrainas/gobag/context"
 
+	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/manager"
 )
 
@@ -47,7 +45,7 @@ func reportSyncResult(artifactName string, fromVersion string, toVersion string)
 	}
 }
 
-func reportProfileSyncResult(p *Profile, from int32, to int32) {
+func reportProfileSyncResult(p *v1.Profile, from int32, to int32) {
 	if from == to {
 		fmt.Printf("%s @%d => no updates available\n", p.Name, from)
 	} else {
@@ -56,8 +54,8 @@ func reportProfileSyncResult(p *Profile, from int32, to int32) {
 }
 
 /* Sync Profiles Command */
-func syncAllProfiles(ctx context.Context, args []string) error {
-	ctx, err := manager.Context(ctx, "")
+func syncAllProfiles(parent context.Context, args []string) error {
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
@@ -67,16 +65,16 @@ func syncAllProfiles(ctx context.Context, args []string) error {
 			continue
 		}
 
-		from, to, err := p.Sync()
+		from, to, err := manager.SyncProfile(p)
 		if err != nil {
-			log.Errorf("error syncing profile: %v", err)
+			log.Println("ERR: error syncing profile: %v", err)
 			log.Println("couldn't sync with remote server.")
 			return nil
 		}
 
-		err = p.Save()
+		err = manager.SaveProfile(p)
 		if err != nil {
-			log.Errorf("error saving profile: %v", err)
+			log.Printf("error saving profile: %v", err)
 			log.Println("couldn't save profile")
 			return nil
 		}
@@ -88,16 +86,16 @@ func syncAllProfiles(ctx context.Context, args []string) error {
 }
 
 /* Sync Profile Command */
-func syncProfile(ctx context.Context, args []string) error {
-	ctx, err := manager.Context(ctx, "")
+func syncProfile(parent context.Context, args []string) error {
+	ctx, err := manager.Context(parent, "")
 	if err != nil {
 		return err
 	}
 
-	profile := ctx.Profile
+	profile := ctx.Profile()
 	if len(args) > 0 {
 		var ok bool
-		profile, ok = ctx.Profile[args[0]]
+		profile, ok = ctx.Profiles[args[0]]
 		if !ok {
 			log.Println("profile not found.")
 			return nil
@@ -109,15 +107,15 @@ func syncProfile(ctx context.Context, args []string) error {
 		return nil
 	}
 
-	from, to, err := profile.Sync()
+	from, to, err := manager.SyncProfile(profile)
 	if err != nil {
-		log.Errorf("error syncing profile: %v", err)
+		log.Printf("error syncing profile: %v", err)
 		log.Println("couldn't sync with remote server.")
 		return nil
 	}
 
-	if err = profile.Save(); err != nil {
-		log.Errorf("error saving profile: %v", err)
+	if err = manager.SaveProfile(profile); err != nil {
+		log.Printf("error saving profile: %v", err)
 		log.Println("couldn't save profile")
 		return nil
 	}
