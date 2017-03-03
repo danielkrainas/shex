@@ -2,14 +2,15 @@ package list
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
 	"github.com/danielkrainas/gobag/context"
 
+	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/manager"
+	"github.com/danielkrainas/shex/mods"
 )
 
 func init() {
@@ -17,8 +18,8 @@ func init() {
 }
 
 func listWrapper(fn func(*manager.ExecutionContext, []string) error) func(context.Context, []string) error {
-	return func(ctx context.Context, args []string) error {
-		ctx, err := manager.Context(ctx, "")
+	return func(parent context.Context, args []string) error {
+		ctx, err := manager.Context(parent, "")
 		if err != nil {
 			return err
 		}
@@ -32,8 +33,7 @@ var (
 		Use:   "list",
 		Short: "list",
 		Long:  "list",
-		Run:   cmd.ExecutorFunc(run),
-		Commands: []*cmd.Info{
+		SubCommands: []*cmd.Info{
 			{
 				Use:   "mods",
 				Short: "mods",
@@ -77,19 +77,19 @@ type listModsCommand struct {
 func listMods(ctx *manager.ExecutionContext, args []string) error {
 	profileName := acontext.GetStringValue(ctx, "flags.profile")
 	useProfile := profileName != ""
-	var mods ModList
+	var list v1.ModList
 	if useProfile {
-		profileName = cmd.Profile
-		if len(cmd.Profile) > 0 {
+		profileName = ctx.Value("flags.profile").(string)
+		if len(profileName) > 0 {
 			selectedProfile, ok := ctx.Profiles[profileName]
 			if !ok {
 				return fmt.Errorf("profile not found: %q", profileName)
 			}
 
-			mods = selectedProfile.Mods
+			list = selectedProfile.Mods
 		} else {
-			profileName = ctx.Profile.Name
-			mods = ctx.Profile.Mods
+			profileName = ctx.Profile().Name
+			list = ctx.Profile().Mods
 		}
 	} else if len(ctx.Config.Games) <= 0 {
 		log.Println("no games attached")
@@ -100,24 +100,24 @@ func listMods(ctx *manager.ExecutionContext, args []string) error {
 			gameName = args[0]
 		}
 
-		gamePath := getGameOrDefault(ctx.Config.Games, gameName)
-		manifest, err := loadGameManifest(gamePath)
+		gamePath := manager.GetGameOrDefault(ctx.Config.Games, gameName)
+		manifest, err := mods.LoadGameManifest(gamePath)
 		if err != nil {
-			log.Errorf("error loading game manifest: %v", err)
+			log.Printf("error loading game manifest: %v", err)
 			log.Println("game manifest not found or invalid")
 			return nil
 		}
 
-		mods = manifest.Mods
+		list = manifest.Mods
 	}
 
 	//fmt.Printf("%-30s   %s\n", "NAME", "VERSION")
-	if len(mods) > 0 {
+	if len(list) > 0 {
 		if useProfile {
 			log.Printf("Mods installed in profile %s\n", profileName)
 		}
 
-		for name, version := range mods {
+		for name, version := range list {
 			log.Printf("%15s@%s\n", name, version)
 		}
 	} else {
