@@ -41,8 +41,7 @@ func run(parent context.Context, args []string) error {
 	}
 
 	name := args[0]
-	//gamePath := game.GetGameOrDefault(ctx.Config.Games, name)
-	gamePath := "" // TODO make this work like above used to?
+	gamePath := manager.GetGameOrDefault(ctx.Config.Games, name)
 	mod, err := manager.UninstallMod(ctx.Config, gamePath, ctx.Profile(), name)
 	if err != nil {
 		log.Printf("error uninstalling mod: %v", err)
