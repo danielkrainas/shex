@@ -3,12 +3,14 @@ package add
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
+	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/danielkrainas/gobag/cmd"
-	"github.com/danielkrainas/gobag/context"
 
+	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/manager"
 )
 
@@ -17,8 +19,8 @@ func init() {
 }
 
 func addWrapper(fn func(*manager.ExecutionContext, []string) error) func(context.Context, []string) error {
-	return func(ctx context.Context, args []string) error {
-		ctx, err := manager.Context(ctx, "")
+	return func(parent context.Context, args []string) error {
+		ctx, err := manager.Context(parent, "")
 		if err != nil {
 			return err
 		}
@@ -32,8 +34,7 @@ var (
 		Use:   "add",
 		Short: "add",
 		Long:  "add",
-		Run:   cmd.ExecutorFunc(run),
-		Commands: []*cmd.Info{
+		SubCommands: []*cmd.Info{
 			{
 				Use:   "profile",
 				Short: "profile",
@@ -77,9 +78,9 @@ func addProfile(ctx *manager.ExecutionContext, args []string) error {
 		return nil
 	}
 
-	profile := manager.CreateProfile(profileId)
-	if err := profile.SaveTo(profilePath); err != nil {
-		log.Errorf("error saving profile: %v", err)
+	profile := v1.NewProfile(profileId)
+	if err := manager.SaveProfileTo(profile, profilePath); err != nil {
+		log.Printf("error saving profile: %v", err)
 		log.Printf("Could not save to: %s", profilePath)
 		return nil
 	}
@@ -107,19 +108,14 @@ func addGame(ctx *manager.ExecutionContext, args []string) error {
 		}
 	}
 
-	if ctx.Config.Games.Exists(alias) {
-		log.Errorf("the alias %q is already in use", alias)
+	if ctx.Config.Games.HasAlias(alias) {
+		log.Printf("the alias %q is already in use", alias)
 		return nil
 	}
 
-	if err = game.AttachGameFolder(ctx.Config, alias, gamePath); err != nil {
-		log.Errorf("error attaching game folder: %v", err)
-		log.Printf("could not attach game %q at: %s", alias, gamePath)
-		return nil
-	}
-
-	if err = configuration.Save(ctx.Config, ctx.HomePath); err != nil {
-		log.Errorf("error saving manager config: %v", err)
+	ctx.Config.Games.Attach(alias, gamePath)
+	if err = manager.SaveConfig(ctx.Config, ctx.HomePath); err != nil {
+		log.Printf("error saving manager config: %v", err)
 		log.Printf("could not save config: %s", ctx.HomePath)
 		return nil
 	}
@@ -136,28 +132,30 @@ func addChannel(ctx *manager.ExecutionContext, args []string) error {
 
 	alias := strings.ToLower(args[0])
 	endpoint := args[1]
-	if c, ok := ctx.Config.Channels[alias]; ok {
+	if c, ok := ctx.Channels[alias]; ok {
 		log.Printf("Overriding %s (=%s:%s)\n", alias, c.Protocol, c.Endpoint)
 	}
 
-	c := &Channel{
+	c := &manager.Channel{
 		Alias:    alias,
 		Endpoint: endpoint,
 	}
 
-	if len(cmd.Protocol) < 1 {
-		cmd.Protocol = "http"
+	protocol := ctx.Value("flags.protocol").(string)
+	if len(protocol) < 1 {
+		protocol = "http"
 	}
 
-	if cmd.Protocol != "http" && cmd.Protocol != "https" {
-		return appError{nil, "unknown protocol: " + cmd.Protocol}
+	if protocol != "http" && protocol != "https" {
+		log.Printf("unknown protocol: %s", protocol)
+		return nil
 	} else {
-		c.Protocol = cmd.Protocol
+		c.Protocol = protocol
 	}
 
 	channelPath := filepath.Join(ctx.Config.ChannelsPath, c.Alias+".json")
 	if err := c.SaveTo(channelPath); err != nil {
-		log.Errorf("error saving channel: %v", err)
+		log.Printf("error saving channel: %v", err)
 		log.Println("couldn't save channel: ", channelPath)
 		return nil
 	}

@@ -17,6 +17,11 @@ func (list GameList) Attach(alias string, gamePath string) {
 	list[alias] = filepath.Clean(gamePath)
 }
 
+func (list GameList) HasAlias(alias string) bool {
+	_, ok := list[alias]
+	return ok
+}
+
 type Config struct {
 	filePath              string
 	ActiveProfile         string   `json:"active"`
