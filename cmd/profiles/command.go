@@ -37,8 +37,8 @@ var (
 			},
 			{
 				Use:   "list",
-				Short: "list",
-				Long:  "list",
+				Short: "list profiles",
+				Long:  "list profiles",
 				Run:   cmd.ExecutorFunc(listProfiles),
 			},
 		},

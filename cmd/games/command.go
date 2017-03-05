@@ -38,8 +38,8 @@ var (
 			},
 			{
 				Use:   "list",
-				Short: "list",
-				Long:  "list",
+				Short: "list games",
+				Long:  "list games",
 				Run:   cmd.ExecutorFunc(listGames),
 			},
 		},

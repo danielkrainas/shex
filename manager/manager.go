@@ -36,10 +36,14 @@ type Manager interface {
 	SaveConfig() error
 	Profile() *v1.Profile
 	Profiles() map[string]*v1.Profile
+	Channel() *mods.Channel
+	Channels() mods.ChannelMap
 	AddProfile(profile *v1.Profile) error
 	RemoveProfile(id string) (*v1.Profile, error)
 	AddGame(alias string, game mods.GameDir) error
 	RemoveGame(alias string) error
+	AddChannel(ch *mods.Channel) error
+	RemoveChannel(alias string) (*mods.Channel, error)
 	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
 	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
 }
@@ -115,6 +119,10 @@ func (m *manager) AddProfile(profile *v1.Profile) error {
 
 func (m *manager) Channel() *mods.Channel {
 	return m.channels[m.config.ActiveRemote]
+}
+
+func (m *manager) Channels() mods.ChannelMap {
+	return m.channels
 }
 
 func (m *manager) UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error {
@@ -304,6 +312,34 @@ func (m *manager) RemoveGame(alias string) error {
 
 	m.config.Games.Detach(alias)
 	return nil
+}
+
+func (m *manager) AddChannel(ch *mods.Channel) error {
+	m.channels[ch.Alias] = ch
+	return m.saveChannel(ch)
+}
+
+func (m *manager) RemoveChannel(alias string) (*mods.Channel, error) {
+	var ch *mods.Channel
+	ok := false
+	if alias == "default" && m.config.IncludeDefaultChannel {
+		ch = DefaultChannel
+		ok = true
+	} else {
+		ch, ok = m.channels[alias]
+	}
+
+	if !ok {
+		return nil, fmt.Errorf("channel %q not found", alias)
+	}
+
+	if ch == DefaultChannel {
+		m.config.IncludeDefaultChannel = false
+	} else if err := m.dropChannel(ch); err != nil {
+		return nil, err
+	}
+
+	return ch, nil
 }
 
 func (m *manager) pathFor(v interface{}) string {
