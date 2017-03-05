@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 )
 
+var CreatePermissions os.FileMode = 0755
+
 type SysFs interface {
 	DirExists(dirPath string) bool
 	FileExists(filePath string) bool
@@ -55,7 +57,7 @@ func (fs *sysFs) Read(filePath string) (io.ReadCloser, error) {
 }
 
 func (fs *sysFs) Write(filePath string) (io.WriteCloser, error) {
-	return os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0666)
+	return os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, CreatePermissions)
 }
 
 func (fs *sysFs) DeleteFile(filePath string) error {
@@ -67,7 +69,7 @@ func (fs *sysFs) ReadDir(dirPath string) ([]os.FileInfo, error) {
 }
 
 func (fs *sysFs) CreateDir(dirPath string) error {
-	return os.Mkdir(dirPath, 0666)
+	return os.Mkdir(dirPath, CreatePermissions)
 }
 
 func WriteJson(fs SysFs, filePath string, v interface{}) error {
