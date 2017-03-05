@@ -69,12 +69,12 @@ func createProfileSource(name string, location string) v1.ProfileSource {
 }
 
 func LoadProfile(fs sysfs.SysFs, profilePath string) (*v1.Profile, error) {
-	var profile *v1.Profile
+	profile := &v1.Profile{}
 	if err := sysfs.ReadJson(fs, profilePath, profile); err != nil {
 		return nil, err
 	}
 
-	if profile.Source.Type == v1.SOURCE_NONE {
+	if profile.Source != nil && profile.Source.Type == v1.SOURCE_NONE {
 		profile.Source = nil
 	}
 
