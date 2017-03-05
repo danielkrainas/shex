@@ -36,6 +36,7 @@ type Manager interface {
 	Profile() *v1.Profile
 	Profiles() map[string]*v1.Profile
 	AddProfile(profile *v1.Profile) error
+	RemoveProfile(id string) (*v1.Profile, error)
 	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
 	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
 }
@@ -169,6 +170,19 @@ func (m *manager) InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.N
 	}
 
 	return mods.GetModInfo(m.fs, localPath)
+}
+
+func (m *manager) RemoveProfile(id string) (*v1.Profile, error) {
+	p, ok := m.profiles[id]
+	if !ok {
+		return nil, fmt.Errorf("profile %q not found", id)
+	}
+
+	if err := m.dropProfile(p); err != nil {
+		return nil, err
+	}
+
+	return p, nil
 }
 
 func (m *manager) dropProfile(profile *v1.Profile) error {

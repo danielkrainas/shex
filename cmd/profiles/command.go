@@ -2,6 +2,7 @@ package profiles
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/danielkrainas/gobag/cmd"
@@ -26,6 +27,13 @@ var (
 				Short: "add a profile",
 				Long:  "add a profile",
 				Run:   cmd.ExecutorFunc(addProfile),
+			},
+
+			{
+				Use:   "remove",
+				Short: "remove a profile",
+				Long:  "remove a profile",
+				Run:   cmd.ExecutorFunc(removeProfile),
 			},
 			{
 				Use:   "list",
@@ -68,6 +76,28 @@ func addProfile(ctx context.Context, args []string) error {
 	}
 
 	fmt.Printf("[%s] created at: %s\n", profile.Id, profilePath)
+	return nil
+}
+
+/* Remove Profile Command */
+func removeProfile(ctx context.Context, args []string) error {
+	m, err := cmdutils.LoadManager(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(args) < 1 {
+		return errors.New("you must specify a profile")
+	}
+
+	profileId := args[0]
+	if profile, err := m.RemoveProfile(profileId); err != nil {
+		fmt.Printf("could not remove the profile: %v", err)
+		return nil
+	} else {
+		fmt.Printf("%q has been removed\n", profile.Name)
+	}
+
 	return nil
 }
 

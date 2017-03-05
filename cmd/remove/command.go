@@ -27,12 +27,6 @@ var (
 				Run:   cmd.ExecutorFunc(removeGame),
 			},
 			{
-				Use:   "profile",
-				Short: "profile",
-				Long:  "profile",
-				Run:   cmd.ExecutorFunc(removeProfile),
-			},
-			{
 				Use:   "channel",
 				Short: "channel",
 				Long:  "channel",
@@ -44,28 +38,7 @@ var (
 
 /* Remove Profile Command */
 func removeProfile(parent context.Context, args []string) error {
-	if len(args) < 1 {
-		return errors.New("you must specify a profile")
-	}
 
-	ctx, err := manager.Context(parent, "")
-	if err != nil {
-		return err
-	}
-
-	profileId := args[0]
-	profile, ok := ctx.Profiles[profileId]
-	if !ok {
-		log.Printf("Could not find the profile %q", profileId)
-		return nil
-	}
-
-	if err := manager.DropProfile(profile); err != nil {
-		return err
-	}
-
-	log.Printf("%q has been removed\n", profile.Name)
-	return nil
 }
 
 /* Remove Game Command */
