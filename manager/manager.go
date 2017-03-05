@@ -34,6 +34,7 @@ type Manager interface {
 	//Game(name string) string
 	Home() string
 	Profile() *v1.Profile
+	Profiles() map[string]*v1.Profile
 	AddProfile(profile *v1.Profile) error
 	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
 	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
@@ -93,6 +94,10 @@ func (m *manager) Fs() sysfs.SysFs {
 
 func (m *manager) Profile() *v1.Profile {
 	return m.profiles[m.config.ActiveProfile]
+}
+
+func (m *manager) Profiles() map[string]*v1.Profile {
+	return m.profiles
 }
 
 func (m *manager) AddProfile(profile *v1.Profile) error {

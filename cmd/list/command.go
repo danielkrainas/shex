@@ -48,12 +48,6 @@ var (
 				Run:   cmd.ExecutorFunc(listWrapper(listGames)),
 			},
 			{
-				Use:   "profiles",
-				Short: "profiles",
-				Long:  "profiles",
-				Run:   cmd.ExecutorFunc(listWrapper(listProfiles)),
-			},
-			{
 				Use:   "config",
 				Short: "config",
 				Long:  "config",
@@ -145,16 +139,6 @@ func listGames(ctx *manager.ExecutionContext, _ []string) error {
 	log.Printf("%12s   %s\n", "ALIAS", "FOLDER")
 	for alias, gameFolder := range ctx.Config.Games {
 		log.Printf("%12s   %s\n", alias, gameFolder)
-	}
-
-	return nil
-}
-
-/* List Profiles Command */
-func listProfiles(ctx *manager.ExecutionContext, _ []string) error {
-	log.Printf("%15s   %s\n", "ID", "NAME")
-	for _, p := range ctx.Profiles {
-		log.Printf("%15s   %s\n", p.Id, p.Name)
 	}
 
 	return nil

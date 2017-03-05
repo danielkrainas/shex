@@ -15,6 +15,29 @@ func init() {
 	cmd.Register("profiles", Info)
 }
 
+var (
+	Info = &cmd.Info{
+		Use:   "profiles",
+		Short: "",
+		Long:  "",
+		SubCommands: []*cmd.Info{
+			{
+				Use:   "add",
+				Short: "add a profile",
+				Long:  "add a profile",
+				Run:   cmd.ExecutorFunc(addProfile),
+			},
+			{
+				Use:   "list",
+				Short: "list",
+				Long:  "list",
+				Run:   cmd.ExecutorFunc(listProfiles),
+			},
+		},
+	}
+)
+
+/* Add Profiles Command */
 func addProfile(ctx context.Context, args []string) error {
 	m, err := cmdutils.LoadManager(ctx)
 	if err != nil {
@@ -48,18 +71,17 @@ func addProfile(ctx context.Context, args []string) error {
 	return nil
 }
 
-var (
-	Info = &cmd.Info{
-		Use:   "profiles",
-		Short: "",
-		Long:  "",
-		SubCommands: []*cmd.Info{
-			{
-				Use:   "add",
-				Short: "add a profile",
-				Long:  "add a profile",
-				Run:   cmd.ExecutorFunc(addProfile),
-			},
-		},
+/* List Profiles Command */
+func listProfiles(ctx context.Context, _ []string) error {
+	m, err := cmdutils.LoadManager(ctx)
+	if err != nil {
+		return err
 	}
-)
+
+	fmt.Printf("%15s   %s\n", "ID", "NAME")
+	for _, p := range m.Profiles() {
+		fmt.Printf("%15s   %s\n", p.Id, p.Name)
+	}
+
+	return nil
+}
