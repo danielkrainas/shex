@@ -21,12 +21,6 @@ var (
 		Long:  "remove",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "game",
-				Short: "game",
-				Long:  "game",
-				Run:   cmd.ExecutorFunc(removeGame),
-			},
-			{
 				Use:   "channel",
 				Short: "channel",
 				Long:  "channel",
@@ -35,40 +29,6 @@ var (
 		},
 	}
 )
-
-/* Remove Profile Command */
-func removeProfile(parent context.Context, args []string) error {
-
-}
-
-/* Remove Game Command */
-func removeGame(parent context.Context, args []string) error {
-	if len(args) < 0 {
-		return errors.New("you must specify a game alias")
-	}
-
-	ctx, err := manager.Context(parent, "")
-	if err != nil {
-		return err
-	}
-
-	alias := args[0]
-	gamePath, ok := ctx.Config.Games[alias]
-	if !ok {
-		log.Printf("game %q does not exist.", alias)
-		return nil
-	}
-
-	ctx.Config.Games.Detach(alias)
-	if err := manager.SaveConfig(ctx.Config, ctx.HomePath); err != nil {
-		log.Printf("error saving configuration: %v", err)
-		log.Println("could not save configuration")
-		return nil
-	}
-
-	log.Printf("game removed: %s => %s", alias, gamePath)
-	return nil
-}
 
 /* Remove Channel Command */
 func removeChannel(parent context.Context, args []string) error {

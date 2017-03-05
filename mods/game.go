@@ -24,6 +24,10 @@ func (dir GameDir) String() string {
 
 type GameMap map[string]GameDir
 
+func (games GameMap) Len() int {
+	return len(games)
+}
+
 func (games GameMap) Contains(name string) bool {
 	_, ok := games[name]
 	return ok

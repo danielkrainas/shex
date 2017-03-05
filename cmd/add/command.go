@@ -36,12 +36,6 @@ var (
 		Long:  "add",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "game",
-				Short: "game",
-				Long:  "game",
-				Run:   cmd.ExecutorFunc(addWrapper(addGame)),
-			},
-			{
 				Use:   "channel",
 				Short: "channel",
 				Long:  "channel",
@@ -57,42 +51,6 @@ var (
 		},
 	}
 )
-
-func addGame(ctx *manager.ExecutionContext, args []string) error {
-	if len(args) < 1 {
-		return errors.New("invalid game path")
-	}
-
-	alias := args[0]
-	var gamePath string
-	var err error
-	if len(args) < 2 {
-		gamePath = alias
-		alias = manager.DefaultGameName
-		log.Println("No alias specified, assuming \"default\"")
-	} else {
-		gamePath, err = filepath.Abs(args[1])
-		if err != nil {
-			return errors.New("couldn't resolve path: " + args[1])
-		}
-	}
-
-	if ctx.Config.Games.HasAlias(alias) {
-		log.Printf("the alias %q is already in use", alias)
-		return nil
-	}
-
-	ctx.Config.Games.Attach(alias, gamePath)
-	if err = manager.SaveConfig(ctx.Config, ctx.HomePath); err != nil {
-		log.Printf("error saving manager config: %v", err)
-		log.Printf("could not save config: %s", ctx.HomePath)
-		return nil
-	}
-
-	gamePath = ctx.Config.Games[alias]
-	log.Printf("added %s as \"%s\"\n", gamePath, alias)
-	return nil
-}
 
 func addChannel(ctx *manager.ExecutionContext, args []string) error {
 	if len(args) < 2 {

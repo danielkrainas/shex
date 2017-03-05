@@ -1,9 +1,6 @@
 package manager
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"path"
 	"path/filepath"
 
 	"github.com/danielkrainas/shex/mods"
@@ -21,7 +18,7 @@ type Config struct {
 	Games                 mods.GameMap `json:"games"`
 }
 
-func SaveConfig(config *Config, homePath string) error {
+func SaveConfig(fs sysfs.SysFs, homePath string, config *Config) error {
 	var err error
 	if len(homePath) <= 0 {
 		homePath, err = getDefaultHomePath()
@@ -30,14 +27,8 @@ func SaveConfig(config *Config, homePath string) error {
 		}
 	}
 
-	configPath := path.Join(homePath, HomeConfigName)
-	jsonContent, err := json.Marshal(config)
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(configPath, jsonContent, 0777)
-	if err != nil {
+	configPath := filepath.Join(homePath, HomeConfigName)
+	if err := sysfs.WriteJson(fs, configPath, config); err != nil {
 		return err
 	}
 
@@ -45,45 +36,40 @@ func SaveConfig(config *Config, homePath string) error {
 }
 
 func NewConfig() *Config {
-	config := &Config{}
-	config.ActiveProfile = DefaultProfileName
-	config.ActiveRemote = "default"
-	config.Games = make(mods.GameMap)
-	config.IncludeDefaultChannel = true
-	return config
+	return &Config{
+		ActiveProfile: DefaultProfileName,
+		ActiveRemote:  "default",
+		Games:         make(mods.GameMap),
+		IncludeDefaultChannel: true,
+	}
 }
 
 func LoadConfig(fs sysfs.SysFs, homePath string) (*Config, error) {
-	config := &Config{}
+	config := NewConfig()
 	var err error
-	if len(homePath) <= 0 {
+	if homePath == "" {
 		homePath, err = getDefaultHomePath()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	configPath := filepath.Join(homePath, HomeConfigName)
 	if err = ensureHomeDirectoryExists(fs, homePath); err != nil {
 		return nil, err
 	}
 
-	jsonContent, err := ioutil.ReadFile(configPath)
-	if err != nil {
+	configPath := filepath.Join(homePath, HomeConfigName)
+	if err := sysfs.ReadJson(fs, configPath, config); err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(jsonContent, config)
-	if err == nil {
-		config.filePath = configPath
-		if len(config.ProfilesPath) < 1 {
-			config.ProfilesPath = filepath.Join(homePath, HomeProfilesFolder)
-		}
-
-		if len(config.ChannelsPath) < 1 {
-			config.ChannelsPath = filepath.Join(homePath, HomeChannelsFolder)
-		}
+	if len(config.ProfilesPath) < 1 {
+		config.ProfilesPath = filepath.Join(homePath, HomeProfilesFolder)
 	}
 
-	return config, err
+	if len(config.ChannelsPath) < 1 {
+		config.ChannelsPath = filepath.Join(homePath, HomeChannelsFolder)
+	}
+
+	return config, nil
 }

@@ -40,13 +40,6 @@ var (
 				Long:  "mods",
 				Run:   cmd.ExecutorFunc(listWrapper(listMods)),
 			},
-
-			{
-				Use:   "games",
-				Short: "games",
-				Long:  "games",
-				Run:   cmd.ExecutorFunc(listWrapper(listGames)),
-			},
 			{
 				Use:   "config",
 				Short: "config",
@@ -126,21 +119,6 @@ func listConfig(ctx *manager.ExecutionContext, _ []string) error {
 	log.Printf("Settings: \n")
 	log.Printf("    profile=%s\n", ctx.Config.ActiveProfile)
 	log.Printf("    channel=%s\n", ctx.Config.ActiveRemote)
-	return nil
-}
-
-/* List Games Command */
-func listGames(ctx *manager.ExecutionContext, _ []string) error {
-	if len(ctx.Config.Games) <= 0 {
-		log.Printf("no games found.\n")
-		return nil
-	}
-
-	log.Printf("%12s   %s\n", "ALIAS", "FOLDER")
-	for alias, gameFolder := range ctx.Config.Games {
-		log.Printf("%12s   %s\n", alias, gameFolder)
-	}
-
 	return nil
 }
 

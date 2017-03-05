@@ -8,6 +8,7 @@ import (
 	"github.com/danielkrainas/gobag/cmd"
 	"github.com/danielkrainas/gobag/context"
 
+	_ "github.com/danielkrainas/shex/cmd/games"
 	_ "github.com/danielkrainas/shex/cmd/profiles"
 	//_ "github.com/danielkrainas/shex/cmd/add"
 	//_ "github.com/danielkrainas/shex/cmd/clean"

@@ -33,10 +33,13 @@ type Manager interface {
 	Config() *Config
 	//Game(name string) string
 	Home() string
+	SaveConfig() error
 	Profile() *v1.Profile
 	Profiles() map[string]*v1.Profile
 	AddProfile(profile *v1.Profile) error
 	RemoveProfile(id string) (*v1.Profile, error)
+	AddGame(alias string, game mods.GameDir) error
+	RemoveGame(alias string) error
 	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
 	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
 }
@@ -275,6 +278,31 @@ func (m *manager) loadChannels() error {
 	}
 
 	m.channels = result
+	return nil
+}
+
+func (m *manager) SaveConfig() error {
+	return SaveConfig(m.fs, m.homePath, m.config)
+
+}
+
+func (m *manager) AddGame(alias string, dir mods.GameDir) error {
+	m.config.Games.Attach(alias, dir)
+	if err := SaveConfig(m.fs, m.homePath, m.config); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *manager) RemoveGame(alias string) error {
+	_, ok := m.config.Games[alias]
+	if !ok {
+		fmt.Printf("game %q does not exist.", alias)
+		return nil
+	}
+
+	m.config.Games.Detach(alias)
 	return nil
 }
 
