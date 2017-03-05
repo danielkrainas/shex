@@ -23,7 +23,6 @@ type RemoteProfile struct {
 }
 
 type Profile struct {
-	FilePath string         `json:"-"`
 	Id       string         `json:"id"`
 	Name     string         `json:"name"`
 	Mods     ModList        `json:"mods"`
@@ -80,9 +79,25 @@ func (l ModList) Contains(modName string) bool {
 	return ok
 }
 
+func (l ModList) Set(name string, version string) {
+	l[name] = version
+}
+
+func (l ModList) Drop(name string) {
+	delete(l, name)
+}
+
 type NameVersionToken struct {
 	Name    string
 	Version string
+}
+
+func (t *NameVersionToken) Constraint() string {
+	if t.Version != "latest" {
+		return "^" + t.Version
+	}
+
+	return t.Version
 }
 
 func ParseNameVersionToken(pair string) *NameVersionToken {
