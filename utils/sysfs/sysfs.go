@@ -2,6 +2,7 @@ package sysfs
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -16,6 +17,7 @@ type SysFs interface {
 	DeleteFile(filePath string) error
 	DeleteDir(dirPath string) error
 	ReadDir(dirPath string) ([]os.FileInfo, error)
+	CreateDir(dirPath string) error
 }
 
 type sysFs struct{}
@@ -62,6 +64,10 @@ func (fs *sysFs) DeleteFile(filePath string) error {
 
 func (fs *sysFs) ReadDir(dirPath string) ([]os.FileInfo, error) {
 	return ioutil.ReadDir(dirPath)
+}
+
+func (fs *sysFs) CreateDir(dirPath string) error {
+	return os.Mkdir(dirPath, 0666)
 }
 
 func WriteJson(fs SysFs, filePath string, v interface{}) error {
@@ -137,4 +143,18 @@ func CopyFile(fs SysFs, srcPath, dstPath string) (int64, error) {
 
 	defer dst.Close()
 	return io.Copy(dst, src)
+}
+
+func SizeOf(r io.ReadCloser) (int64, error) {
+	fr, ok := r.(*os.File)
+	if !ok {
+		return -1, errors.New("couldn't read size: not a valid file reader")
+	}
+
+	fi, err := fr.Stat()
+	if err != nil {
+		return -1, err
+	}
+
+	return fi.Size(), nil
 }
