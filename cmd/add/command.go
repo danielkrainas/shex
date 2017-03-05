@@ -36,12 +36,6 @@ var (
 		Long:  "add",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "profile",
-				Short: "profile",
-				Long:  "profile",
-				Run:   cmd.ExecutorFunc(addWrapper(addProfile)),
-			},
-			{
 				Use:   "game",
 				Short: "game",
 				Long:  "game",
@@ -63,31 +57,6 @@ var (
 		},
 	}
 )
-
-func addProfile(ctx *manager.ExecutionContext, args []string) error {
-	profileId := args[0]
-	profilePath := ""
-	if len(args) > 1 {
-		profilePath = args[1]
-	} else {
-		profilePath = path.Join(ctx.Config.ProfilesPath, profileId+".json")
-	}
-
-	if profile, ok := ctx.Profiles[profileId]; ok {
-		log.Printf("[%s] already exists\n", profile.Id)
-		return nil
-	}
-
-	profile := v1.NewProfile(profileId)
-	if err := manager.SaveProfileTo(profile, profilePath); err != nil {
-		log.Printf("error saving profile: %v", err)
-		log.Printf("Could not save to: %s", profilePath)
-		return nil
-	}
-
-	log.Printf("[%s] created at: %s\n", profile.Id, profilePath)
-	return nil
-}
 
 func addGame(ctx *manager.ExecutionContext, args []string) error {
 	if len(args) < 1 {

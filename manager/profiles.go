@@ -8,6 +8,7 @@ import (
 
 	"github.com/danielkrainas/shex/api/client"
 	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/utils/sysfs"
 )
 
 func SyncProfile(p *v1.Profile) (int32, int32, error) {
@@ -65,4 +66,17 @@ func createProfileSource(name string, location string) v1.ProfileSource {
 	source.Uid = name
 	source.Type = "remote"
 	return source
+}
+
+func LoadProfile(fs sysfs.SysFs, profilePath string) (*v1.Profile, error) {
+	var profile *v1.Profile
+	if err := sysfs.ReadJson(fs, profilePath, profile); err != nil {
+		return nil, err
+	}
+
+	if profile.Source.Type == v1.SOURCE_NONE {
+		profile.Source = nil
+	}
+
+	return profile, nil
 }

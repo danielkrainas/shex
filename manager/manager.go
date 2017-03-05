@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -32,6 +33,8 @@ type Manager interface {
 	Config() *Config
 	//Game(name string) string
 	Home() string
+	Profile() *v1.Profile
+	AddProfile(profile *v1.Profile) error
 	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
 	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
 }
@@ -44,7 +47,7 @@ type manager struct {
 	fs       sysfs.SysFs
 }
 
-func NewManager(homePath string, fs sysfs.SysFs, config *Config) (Manager, error) {
+func New(homePath string, fs sysfs.SysFs, config *Config) (Manager, error) {
 	m := &manager{
 		homePath: homePath,
 		profiles: make(map[string]*v1.Profile),
@@ -90,6 +93,15 @@ func (m *manager) Fs() sysfs.SysFs {
 
 func (m *manager) Profile() *v1.Profile {
 	return m.profiles[m.config.ActiveProfile]
+}
+
+func (m *manager) AddProfile(profile *v1.Profile) error {
+	if _, ok := m.profiles[profile.Id]; ok {
+		return fmt.Errorf("[%s] already exists", profile.Id)
+	}
+
+	m.profiles[profile.Id] = profile
+	return nil
 }
 
 func (m *manager) Channel() *mods.Channel {
@@ -185,7 +197,7 @@ func (m *manager) loadProfiles() error {
 			continue
 		}
 
-		if profile, err := m.loadProfile(filepath.Join(m.config.ProfilesPath, f.Name())); err != nil {
+		if profile, err := LoadProfile(m.fs, filepath.Join(m.config.ProfilesPath, f.Name())); err != nil {
 			return err
 		} else {
 			result[profile.Id] = profile
@@ -194,19 +206,6 @@ func (m *manager) loadProfiles() error {
 
 	m.profiles = result
 	return nil
-}
-
-func (m *manager) loadProfile(profilePath string) (*v1.Profile, error) {
-	var profile *v1.Profile
-	if err := sysfs.ReadJson(m.fs, profilePath, profile); err != nil {
-		return nil, err
-	}
-
-	if profile.Source.Type == v1.SOURCE_NONE {
-		profile.Source = nil
-	}
-
-	return profile, nil
 }
 
 func (m *manager) dropChannel(ch *mods.Channel) error {
