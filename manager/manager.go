@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/danielkrainas/shex/api/client"
 	"github.com/danielkrainas/shex/api/v1"
-	"github.com/danielkrainas/shex/fsutils"
+	"github.com/danielkrainas/shex/mods"
+	"github.com/danielkrainas/shex/utils/sysfs"
 )
 
 const (
@@ -24,17 +26,262 @@ const (
 	defaultHomeFolder       = ".shex"
 )
 
-func GetGameOrDefault(games GameList, name string) string {
+type Manager interface {
+	Fs() sysfs.SysFs
+	Init() error
+	Config() *Config
+	//Game(name string) string
+	Home() string
+	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
+	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
+}
+
+type manager struct {
+	channels mods.ChannelMap
+	homePath string
+	profiles map[string]*v1.Profile
+	config   *Config
+	fs       sysfs.SysFs
+}
+
+func NewManager(homePath string, fs sysfs.SysFs, config *Config) (Manager, error) {
+	m := &manager{
+		homePath: homePath,
+		profiles: make(map[string]*v1.Profile),
+		channels: make(mods.ChannelMap),
+		fs:       fs,
+		config:   config,
+	}
+
+	if err := m.Init(); err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+func (m *manager) Init() error {
+	if err := m.loadProfiles(); err != nil {
+		return err
+	}
+
+	if err := m.loadChannels(); err != nil {
+		return err
+	}
+
+	if m.config.IncludeDefaultChannel {
+		m.channels[DefaultChannel.Alias] = DefaultChannel
+	}
+
+	return nil
+}
+
+func (m *manager) Config() *Config {
+	return m.config
+}
+
+func (m *manager) Home() string {
+	return m.homePath
+}
+
+func (m *manager) Fs() sysfs.SysFs {
+	return m.fs
+}
+
+func (m *manager) Profile() *v1.Profile {
+	return m.profiles[m.config.ActiveProfile]
+}
+
+func (m *manager) Channel() *mods.Channel {
+	return m.channels[m.config.ActiveRemote]
+}
+
+func (m *manager) UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error {
+	gameManifest, err := mods.LoadGameManifest(m.fs, game.String())
+	if err != nil {
+		return err
+	}
+
+	profile.Mods.Drop(name)
+	if err := m.saveProfile(profile); err != nil {
+		return err
+	}
+
+	if err := mods.Uninstall(m.fs, game, gameManifest, name); err != nil {
+		return err
+	}
+
+	gameManifest.Mods.Drop(name)
+	if err := mods.SaveGameManifest(game.String(), gameManifest); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *manager) InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error) {
+	// keep moving to sysFs and mods provider
+	ch := m.Channel()
+	source := ch.Protocol + "://" + ch.Endpoint
+	remoteInfo, err := client.DownloadModInfo(source, token)
+	if err != nil {
+		return nil, err
+	}
+
+	localName := mods.GetLocalModPathName(remoteInfo.Name, remoteInfo.Version)
+	localPath := filepath.Join(game.String(), mods.ModsFolder, localName)
+	err = client.DownloadMod(source, localPath, remoteInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	gameManifest, err := mods.LoadGameManifest(m.fs, game.String())
+	if err != nil {
+		return nil, err
+	}
+
+	profile.Mods.Set(remoteInfo.Name, token.Constraint())
+	if err := m.saveProfile(profile); err != nil {
+		return nil, err
+	}
+
+	gameManifest.Mods.Set(remoteInfo.Name, remoteInfo.Version)
+	err = mods.SaveGameManifest(game.String(), gameManifest)
+	if err != nil {
+		return nil, err
+	}
+
+	return mods.GetModInfo(m.fs, localPath)
+}
+
+func (m *manager) dropProfile(profile *v1.Profile) error {
+	profilePath := m.pathFor(profile)
+	if !m.fs.FileExists(profilePath) {
+		return nil // TODO return error here with message?
+	}
+
+	if err := m.fs.DeleteFile(profilePath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *manager) saveProfile(profile *v1.Profile) error {
+	return sysfs.WriteJson(m.fs, m.pathFor(profile), profile)
+}
+
+func (m *manager) loadProfiles() error {
+	files, err := m.fs.ReadDir(m.config.ProfilesPath)
+	if err != nil {
+		return err
+	}
+
+	result := make(map[string]*v1.Profile)
+	for _, f := range files {
+		if isJson, err := filepath.Match("*.json", f.Name()); err != nil {
+			return err
+		} else if !isJson {
+			continue
+		}
+
+		if profile, err := m.loadProfile(filepath.Join(m.config.ProfilesPath, f.Name())); err != nil {
+			return err
+		} else {
+			result[profile.Id] = profile
+		}
+	}
+
+	m.profiles = result
+	return nil
+}
+
+func (m *manager) loadProfile(profilePath string) (*v1.Profile, error) {
+	var profile *v1.Profile
+	if err := sysfs.ReadJson(m.fs, profilePath, profile); err != nil {
+		return nil, err
+	}
+
+	if profile.Source.Type == v1.SOURCE_NONE {
+		profile.Source = nil
+	}
+
+	return profile, nil
+}
+
+func (m *manager) dropChannel(ch *mods.Channel) error {
+	channelPath := m.pathFor(ch)
+	if !m.fs.FileExists(channelPath) {
+		return nil // TODO return error here with message?
+	}
+
+	if err := m.fs.DeleteFile(channelPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *manager) saveChannel(ch *mods.Channel) error {
+	return sysfs.WriteJson(m.fs, m.pathFor(ch), ch)
+}
+
+func (m *manager) loadChannel(channelPath string) (*mods.Channel, error) {
+	var ch *mods.Channel
+	if err := sysfs.ReadJson(m.fs, channelPath, ch); err != nil {
+		return nil, err
+	}
+
+	return ch, nil
+}
+
+func (m *manager) loadChannels() error {
+	files, err := m.fs.ReadDir(m.config.ChannelsPath)
+	if err != nil {
+		return err
+	}
+
+	result := make(mods.ChannelMap)
+	for _, f := range files {
+		if isJson, err := filepath.Match("*.json", f.Name()); err != nil {
+			return err
+		} else if !isJson {
+			continue
+		}
+
+		if channel, err := m.loadChannel(filepath.Join(m.config.ChannelsPath, f.Name())); err != nil {
+			return err
+		} else {
+			result[channel.Alias] = channel
+		}
+	}
+
+	m.channels = result
+	return nil
+}
+
+func (m *manager) pathFor(v interface{}) string {
+	switch t := v.(type) {
+	case *v1.Profile:
+		return filepath.Join(m.config.ProfilesPath, t.Id+".json")
+	case *mods.Channel:
+		return filepath.Join(m.config.ChannelsPath, t.Alias+".json")
+	}
+
+	return ""
+}
+
+func getGameOrDefault(games mods.GameMap, name string) mods.GameDir {
 	if name == "" {
 		name = DefaultGameName
 	}
 
-	gamePath, ok := games[name]
+	game, ok := games[name]
 	if !ok {
-		return ""
+		return mods.EmptyGame
 	}
 
-	return gamePath
+	return game
 }
 
 func getDefaultHomePath() (string, error) {
@@ -46,8 +293,8 @@ func getDefaultHomePath() (string, error) {
 	return path.Join(u.HomeDir, string(filepath.Separator)+defaultHomeFolder), nil
 }
 
-func ensureHomeDirectoryExists(homePath string) error {
-	if !fsutils.DirExists(homePath) {
+func ensureHomeDirectoryExists(fs sysfs.SysFs, homePath string) error {
+	if !fs.DirExists(homePath) {
 		err := os.Mkdir(homePath, 0777)
 		if err != nil {
 			return err
@@ -58,7 +305,7 @@ func ensureHomeDirectoryExists(homePath string) error {
 	profilesPath := filepath.Join(homePath, HomeProfilesFolder)
 	cachePath := filepath.Join(homePath, HomeCacheFolder)
 	channelsPath := filepath.Join(homePath, HomeChannelsFolder)
-	if !fsutils.FileExists(configPath) {
+	if !fs.FileExists(configPath) {
 		defaultConfig := NewConfig()
 		defaultConfig.ProfilesPath = profilesPath
 
@@ -72,28 +319,26 @@ func ensureHomeDirectoryExists(homePath string) error {
 		}
 	}
 
-	if !fsutils.DirExists(cachePath) {
-		err := os.Mkdir(cachePath, 0777)
-		if err != nil {
+	if !fs.DirExists(cachePath) {
+		if err := fs.CreateDir(cachePath); err != nil {
 			return err
 		}
 	}
 
-	if !fsutils.DirExists(channelsPath) {
-		if err := os.Mkdir(channelsPath, 0777); err != nil {
+	if !fs.DirExists(channelsPath) {
+		if err := fs.CreateDir(channelsPath); err != nil {
 			return err
 		}
 	}
 
-	if !fsutils.DirExists(profilesPath) {
-		err := os.Mkdir(profilesPath, 0777)
-		if err != nil {
+	if !fs.DirExists(profilesPath) {
+		if err := fs.CreateDir(profilesPath); err != nil {
 			return err
 		}
 	}
 
 	defaultProfilePath := path.Join(profilesPath, DefaultProfileName+".json")
-	if !fsutils.FileExists(defaultProfilePath) {
+	if !fs.FileExists(defaultProfilePath) {
 		defaultProfile := v1.Profile{}
 		defaultProfile.Id = DefaultProfileName
 		defaultProfile.Mods = make(map[string]string)

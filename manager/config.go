@@ -5,32 +5,20 @@ import (
 	"io/ioutil"
 	"path"
 	"path/filepath"
+
+	"github.com/danielkrainas/shex/mods"
+	"github.com/danielkrainas/shex/utils/sysfs"
 )
-
-type GameList map[string]string
-
-func (list GameList) Detach(alias string) {
-	delete(list, alias)
-}
-
-func (list GameList) Attach(alias string, gamePath string) {
-	list[alias] = filepath.Clean(gamePath)
-}
-
-func (list GameList) HasAlias(alias string) bool {
-	_, ok := list[alias]
-	return ok
-}
 
 type Config struct {
 	filePath              string
-	ActiveProfile         string   `json:"active"`
-	ActiveRemote          string   `json:"remote"`
-	ProfilesPath          string   `json:"profiles"`
-	ChannelsPath          string   `json:"channels"`
-	IncludeDefaultChannel bool     `json:"includeDefaultChannel"`
-	CachePath             string   `json:"cache"`
-	Games                 GameList `json:"games"`
+	ActiveProfile         string       `json:"active"`
+	ActiveRemote          string       `json:"remote"`
+	ProfilesPath          string       `json:"profiles"`
+	ChannelsPath          string       `json:"channels"`
+	IncludeDefaultChannel bool         `json:"includeDefaultChannel"`
+	CachePath             string       `json:"cache"`
+	Games                 mods.GameMap `json:"games"`
 }
 
 func SaveConfig(config *Config, homePath string) error {
@@ -60,12 +48,12 @@ func NewConfig() *Config {
 	config := &Config{}
 	config.ActiveProfile = DefaultProfileName
 	config.ActiveRemote = "default"
-	config.Games = make(GameList)
+	config.Games = make(mods.GameMap)
 	config.IncludeDefaultChannel = true
 	return config
 }
 
-func LoadConfig(homePath string) (*Config, error) {
+func LoadConfig(fs sysfs.SysFs, homePath string) (*Config, error) {
 	config := &Config{}
 	var err error
 	if len(homePath) <= 0 {
@@ -76,7 +64,7 @@ func LoadConfig(homePath string) (*Config, error) {
 	}
 
 	configPath := filepath.Join(homePath, HomeConfigName)
-	if err = ensureHomeDirectoryExists(homePath); err != nil {
+	if err = ensureHomeDirectoryExists(fs, homePath); err != nil {
 		return nil, err
 	}
 
