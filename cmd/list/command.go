@@ -46,12 +46,6 @@ var (
 				Long:  "config",
 				Run:   cmd.ExecutorFunc(listWrapper(listConfig)),
 			},
-			{
-				Use:   "channels",
-				Short: "channels",
-				Long:  "channels",
-				Run:   cmd.ExecutorFunc(listWrapper(listChannels)),
-			},
 		},
 	}
 )
@@ -119,17 +113,5 @@ func listConfig(ctx *manager.ExecutionContext, _ []string) error {
 	log.Printf("Settings: \n")
 	log.Printf("    profile=%s\n", ctx.Config.ActiveProfile)
 	log.Printf("    channel=%s\n", ctx.Config.ActiveRemote)
-	return nil
-}
-
-/* List Channels Command */
-func listChannels(ctx *manager.ExecutionContext, _ []string) error {
-	format := "%15s  %10s   %s\n"
-	log.Printf(format, "alias", "protocol", "endpoint")
-	log.Printf(format, "==========", "========", "==========")
-	for _, ch := range ctx.Channels {
-		log.Printf(format, ch.Alias, ch.Protocol, ch.Endpoint)
-	}
-
 	return nil
 }
