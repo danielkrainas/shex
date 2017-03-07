@@ -8,6 +8,7 @@ import (
 
 	"github.com/danielkrainas/gobag/cmd"
 
+	"github.com/danielkrainas/shex/cmd/cmdutils"
 	"github.com/danielkrainas/shex/manager"
 )
 
@@ -20,7 +21,7 @@ func run(parent context.Context, args []string) error {
 		return errors.New("profile name not specifiedg")
 	}
 
-	ctx, err := manager.Context(parent, "")
+	m, err := cmdutils.LoadManager(ctx)
 	if err != nil {
 		return err
 	}

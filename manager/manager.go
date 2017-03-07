@@ -44,6 +44,7 @@ type Manager interface {
 	RemoveGame(alias string) error
 	AddChannel(ch *mods.Channel) error
 	RemoveChannel(alias string) (*mods.Channel, error)
+	ClearCache() error
 	UninstallMod(game mods.GameDir, profile *v1.Profile, name string) error
 	InstallMod(game mods.GameDir, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error)
 }
@@ -348,9 +349,17 @@ func (m *manager) pathFor(v interface{}) string {
 		return filepath.Join(m.config.ProfilesPath, t.Id+".json")
 	case *mods.Channel:
 		return filepath.Join(m.config.ChannelsPath, t.Alias+".json")
+	case string:
+		if t == "cache" {
+			return filepath.Join(m.homePath, m.config.CachePath)
+		}
 	}
 
 	return ""
+}
+
+func (m *manager) ClearCache() error {
+	return sysfs.ClearDir(m.fs, m.pathFor("cache"))
 }
 
 func getGameOrDefault(games mods.GameMap, name string) mods.GameDir {

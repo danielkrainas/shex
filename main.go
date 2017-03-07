@@ -12,7 +12,7 @@ import (
 	_ "github.com/danielkrainas/shex/cmd/games"
 	_ "github.com/danielkrainas/shex/cmd/profiles"
 	//_ "github.com/danielkrainas/shex/cmd/add"
-	//_ "github.com/danielkrainas/shex/cmd/clean"
+	_ "github.com/danielkrainas/shex/cmd/cache"
 	//_ "github.com/danielkrainas/shex/cmd/export"
 	//_ "github.com/danielkrainas/shex/cmd/install"
 	//_ "github.com/danielkrainas/shex/cmd/list"
