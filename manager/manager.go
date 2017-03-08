@@ -362,7 +362,7 @@ func (m *manager) ClearCache() error {
 	return sysfs.ClearDir(m.fs, m.pathFor("cache"))
 }
 
-func getGameOrDefault(games mods.GameMap, name string) mods.GameDir {
+func GetGameOrDefault(games mods.GameMap, name string) mods.GameDir {
 	if name == "" {
 		name = DefaultGameName
 	}

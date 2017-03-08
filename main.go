@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/danielkrainas/shex/cmd/channels"
 	_ "github.com/danielkrainas/shex/cmd/games"
+	_ "github.com/danielkrainas/shex/cmd/mods"
 	_ "github.com/danielkrainas/shex/cmd/profiles"
 	//_ "github.com/danielkrainas/shex/cmd/add"
 	_ "github.com/danielkrainas/shex/cmd/cache"
