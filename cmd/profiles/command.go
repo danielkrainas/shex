@@ -41,6 +41,12 @@ var (
 				Long:  "list profiles",
 				Run:   cmd.ExecutorFunc(listProfiles),
 			},
+			{
+				Use:   "export",
+				Short: "export profile to file",
+				Long:  "export a profile to a file",
+				Run:   cmd.ExecutorFunc(exportProfile),
+			},
 		},
 	}
 )
@@ -113,5 +119,34 @@ func listProfiles(ctx context.Context, _ []string) error {
 		fmt.Printf("%15s   %s\n", p.Id, p.Name)
 	}
 
+	return nil
+}
+
+/* Export Profile Command */
+func exportProfile(ctx context.Context, args []string) error {
+	if len(args) < 1 {
+		return errors.New("missing profile name")
+	} else if len(args) < 2 {
+		return errors.New("missing export path")
+	}
+
+	m, err := cmdutils.LoadManager(ctx)
+	if err != nil {
+		return err
+	}
+
+	profileId := args[0]
+	profile, ok := m.Profiles()[profileId]
+	if !ok {
+		return fmt.Errorf("[%s] not found\n", profileId)
+	}
+
+	profilePath := args[1]
+	if err := manager.SaveProfile(m.Fs(), profilePath, profile); err != nil {
+		fmt.Printf("error saving profile: %v", err)
+		return nil
+	}
+
+	fmt.Printf("[%s] exported to: %s\n", profile.Id, profilePath)
 	return nil
 }

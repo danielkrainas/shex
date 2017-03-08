@@ -211,7 +211,7 @@ func (m *manager) dropProfile(profile *v1.Profile) error {
 }
 
 func (m *manager) saveProfile(profile *v1.Profile) error {
-	return sysfs.WriteJson(m.fs, m.pathFor(profile), profile)
+	return SaveProfile(m.Fs(), m.pathFor(profile), profile)
 }
 
 func (m *manager) loadProfiles() error {

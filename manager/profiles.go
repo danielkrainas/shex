@@ -80,3 +80,7 @@ func LoadProfile(fs sysfs.SysFs, profilePath string) (*v1.Profile, error) {
 
 	return profile, nil
 }
+
+func SaveProfile(fs sysfs.SysFs, filePath string, profile *v1.Profile) error {
+	return sysfs.WriteJson(fs, filePath, profile)
+}
