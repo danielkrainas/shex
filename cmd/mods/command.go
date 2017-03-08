@@ -40,11 +40,7 @@ var (
 	}
 )
 
-/* List Mods Command
-type listModsCommand struct {
-	Profile string `short:"p" long:"profile" description:"display mods installed in a profile"`
-} */
-
+/* List Mods Command */
 func listMods(ctx context.Context, args []string) error {
 	m, err := cmdutils.LoadManager(ctx)
 	if err != nil {
