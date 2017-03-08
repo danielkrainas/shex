@@ -40,12 +40,6 @@ var (
 				Long:  "mods",
 				Run:   cmd.ExecutorFunc(listWrapper(listMods)),
 			},
-			{
-				Use:   "config",
-				Short: "config",
-				Long:  "config",
-				Run:   cmd.ExecutorFunc(listWrapper(listConfig)),
-			},
 		},
 	}
 )
@@ -105,13 +99,5 @@ func listMods(ctx *manager.ExecutionContext, args []string) error {
 		log.Printf("no mods installed\n")
 	}
 
-	return nil
-}
-
-/* List Config Command */
-func listConfig(ctx *manager.ExecutionContext, _ []string) error {
-	log.Printf("Settings: \n")
-	log.Printf("    profile=%s\n", ctx.Config.ActiveProfile)
-	log.Printf("    channel=%s\n", ctx.Config.ActiveRemote)
 	return nil
 }
