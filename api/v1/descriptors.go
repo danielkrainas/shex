@@ -5,7 +5,7 @@ import (
 	//"regexp"
 
 	"github.com/danielkrainas/gobag/api/describe"
-	"github.com/danielkrainas/gobag/api/errcode"
+	//"github.com/danielkrainas/gobag/api/errcode"
 )
 
 var (
@@ -69,10 +69,9 @@ var routeDescriptors = []describe.Route{
 							{
 								Description: "The API implements the V1 protocol and is accessible.",
 								StatusCode:  http.StatusOK,
-								Headers: []describe.Parameter{
+								Headers: append([]describe.Parameter{
 									jsonContentLengthHeader,
-									versionHeaders...,
-								},
+								}, versionHeaders...),
 							},
 						},
 
@@ -80,9 +79,7 @@ var routeDescriptors = []describe.Route{
 							{
 								Description: "The API does not support the V1 protocol.",
 								StatusCode:  http.StatusNotFound,
-								Headers: []describe.Parameter{
-									versionHeaders...,
-								},
+								Headers:     append([]describe.Parameter{}, versionHeaders...),
 							},
 						},
 					},
