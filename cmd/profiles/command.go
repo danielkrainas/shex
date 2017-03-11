@@ -19,8 +19,8 @@ func init() {
 var (
 	Info = &cmd.Info{
 		Use:   "profiles",
-		Short: "",
-		Long:  "",
+		Short: "profile operations",
+		Long:  "Perform operations on profiles.",
 		SubCommands: []*cmd.Info{
 			{
 				Use:   "add <id>",
