@@ -84,7 +84,7 @@
 			"importpath": "github.com/danielkrainas/gobag/context",
 			"repository": "https://github.com/danielkrainas/gobag",
 			"vcs": "git",
-			"revision": "ed1d51b0895a0db4f25983e5d6f6f3981fecec98",
+			"revision": "c9f2815337c3a10a09e01f5a69e79dde87e2c112",
 			"branch": "master",
 			"path": "context",
 			"notests": true
