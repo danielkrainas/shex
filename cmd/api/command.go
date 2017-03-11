@@ -3,13 +3,17 @@ package api
 import (
 	"context"
 	"fmt"
+	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/danielkrainas/gobag/cmd"
+	cfg "github.com/danielkrainas/gobag/configuration"
 	"github.com/danielkrainas/gobag/context"
 
 	"github.com/danielkrainas/shex/api/server"
 	"github.com/danielkrainas/shex/registry/actions"
 	"github.com/danielkrainas/shex/registry/configuration"
+	storage "github.com/danielkrainas/shex/registry/storage/loader"
 )
 
 func init() {
@@ -22,7 +26,7 @@ func run(ctx context.Context, args []string) error {
 		return err
 	}
 
-	ctx, err := configureLogging(ctx, config)
+	ctx, err = configureLogging(ctx, config)
 	if err != nil {
 		return fmt.Errorf("error configuring logging: %v", err)
 	}
@@ -91,7 +95,7 @@ func configureLogging(ctx context.Context, config *configuration.Config) (contex
 	return ctx, nil
 }
 
-func logLevel(level configuration.LogLevel) log.Level {
+func logLevel(level cfg.LogLevel) log.Level {
 	l, err := log.ParseLevel(string(level))
 	if err != nil {
 		l = log.InfoLevel

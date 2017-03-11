@@ -1,8 +1,8 @@
 package main
 
 import (
+	"context"
 	"math/rand"
-	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
