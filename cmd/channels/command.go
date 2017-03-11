@@ -55,8 +55,10 @@ var (
 
 /* Add Channel Command */
 func addChannel(ctx context.Context, args []string) error {
-	if len(args) < 2 {
-		return errors.New("alias and/or endpoint missing")
+	if len(args) < 1 {
+		return errors.New("argument missing: name")
+	} else if len(args) < 2 {
+		return errors.New("argument missing: endpoint")
 	}
 
 	m, err := cmdutils.LoadManager(ctx)
@@ -81,18 +83,18 @@ func addChannel(ctx context.Context, args []string) error {
 	}
 
 	if protocol != "http" && protocol != "https" {
-		fmt.Printf("unknown protocol: %s", protocol)
+		fmt.Printf("unknown protocol: %s\n", protocol)
 		return nil
 	} else {
 		ch.Protocol = protocol
 	}
 
 	if err := m.AddChannel(ch); err != nil {
-		fmt.Printf("error adding channel: %v", err)
+		fmt.Printf("error adding channel: %v\n", err)
 		return nil
 	}
 
-	fmt.Printf("channel added: %s", ch.Alias)
+	fmt.Printf("channel added: %s\n", ch.Alias)
 	return nil
 }
 
@@ -104,19 +106,19 @@ func removeChannel(ctx context.Context, args []string) error {
 	}
 
 	if len(args) < 1 {
-		return errors.New("you must specify a channel alias")
+		return errors.New("argument missing: name")
 	}
 
 	alias := args[0]
 	var ch *mods.Channel
 	if ch, err = m.RemoveChannel(alias); err != nil {
-		fmt.Printf("error removing channel: %v", err)
+		fmt.Printf("error removing channel: %v\n", err)
 		return nil
 	}
 
 	if ch == manager.DefaultChannel {
 		if err := m.SaveConfig(); err != nil {
-			fmt.Printf("error saving config: %v", err)
+			fmt.Printf("error saving config: %v\n", err)
 			return nil
 		}
 	}
