@@ -36,7 +36,7 @@ func (api *Api) dispatcher(dispatch http.HandlerFunc) http.Handler {
 	return http.Handler(dispatch)
 }
 
-func (api *Api) ServerHTTP(w http.ResponseWriter, r *http.Request) {
+func (api *Api) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	w.Header().Add(ServerVersionHeader, acontext.GetVersion(r.Context()))
