@@ -59,6 +59,10 @@ func addProfile(ctx context.Context, args []string) error {
 		return err
 	}
 
+	if len(args) < 1 {
+		return errors.New("argument missing: id")
+	}
+
 	profileId := args[0]
 	profilePath := ""
 	if len(args) > 1 {
