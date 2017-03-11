@@ -1,6 +1,6 @@
 .godeps
 server/node_modules
 dist
-shex
-shex.exe
+shex*
 update
+registry/registry*
