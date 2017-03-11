@@ -23,10 +23,11 @@ var (
 		Long:  "",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "add",
+				Use:   "add <id>",
 				Short: "add a profile",
-				Long:  "add a profile",
-				Run:   cmd.ExecutorFunc(addProfile),
+				//Long:  "Creates a new mod profile with the specified id. If a path argument is supplied, the profile won't be imported and will be saved to the path specified.",
+				Long: "Creates a new mod profile with the specified id.",
+				Run:  cmd.ExecutorFunc(addProfile),
 			},
 
 			{
