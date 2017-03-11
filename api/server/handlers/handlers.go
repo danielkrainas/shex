@@ -8,6 +8,8 @@ import (
 	"github.com/danielkrainas/gobag/api/errcode"
 	"github.com/danielkrainas/gobag/context"
 	"github.com/urfave/negroni"
+
+	"github.com/danielkrainas/shex/api/v1"
 )
 
 func Base(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +40,7 @@ func Context(parent context.Context) negroni.Handler {
 
 		ctx = acontext.WithVars(ctx, r)
 		ctx = acontext.WithLogger(ctx, acontext.GetLogger(ctx))
-		ctx = context.WithValue(ctx, "url.builder", v1.NewUrlBuilderFromRequest(r, false))
+		ctx = context.WithValue(ctx, "url.builder", v1.NewURLBuilderFromRequest(r, false))
 
 		if iw, err := acontext.GetResponseWriter(ctx); err != nil {
 			acontext.GetLogger(ctx).Warnf("response writer not found in context")
@@ -64,8 +66,8 @@ func Logging(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 }
 
 func TrackErrors(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	ctx = acontext.ErrorTracking(r.Context(), make(errcode.Errors, 0))
-	next(r.WithContext(ctx), w)
+	ctx := acontext.ErrorTracking(r.Context())
+	next(w, r.WithContext(ctx))
 	if errors := acontext.GetErrors(ctx); errors.Len() > 0 {
 		if err := errcode.ServeJSON(w, errors); err != nil {
 			acontext.GetLogger(ctx).Errorf("error serving error json: %v (from %s)", err, errors)

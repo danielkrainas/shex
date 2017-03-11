@@ -4,12 +4,10 @@ import (
 	"net/http"
 
 	"github.com/danielkrainas/gobag/context"
-	"github.com/danielkrainas/gobag/decouple/cqrs"
 	"github.com/gorilla/mux"
 
 	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/registry/actions"
-	"github.com/danielkrainas/shex/registry/configuration"
 )
 
 const ServerVersionHeader = "Shex-Registry-Version"
@@ -43,7 +41,7 @@ func (api *Api) ServerHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add(ServerVersionHeader, acontext.GetVersion(r.Context()))
 	w.Header().Add(ApiVersionHeader, ApiVersion)
-	app.router.ServeHTTP(w, r)
+	api.router.ServeHTTP(w, r)
 }
 
 /* API endpoint
