@@ -20,26 +20,26 @@ func init() {
 var (
 	Info = &cmd.Info{
 		Use:   "games",
-		Short: "",
-		Long:  "",
+		Short: "game folder operations",
+		Long:  "Perform operations on game folders.",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "add",
+				Use:   "add <name> <path>",
 				Short: "add a game folder",
-				Long:  "add a game folder",
+				Long:  "Add the game folder at <path> with the name <name>",
 				Run:   cmd.ExecutorFunc(addGame),
 			},
 
 			{
-				Use:   "remove",
+				Use:   "remove <name>",
 				Short: "remove a game folder",
-				Long:  "remove a game folder",
+				Long:  "Remove the game folder with the name <name>",
 				Run:   cmd.ExecutorFunc(removeGame),
 			},
 			{
 				Use:   "list",
-				Short: "list games",
-				Long:  "list games",
+				Short: "list available game folders",
+				Long:  "List available game folders.",
 				Run:   cmd.ExecutorFunc(listGames),
 			},
 		},
