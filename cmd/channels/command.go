@@ -20,13 +20,13 @@ func init() {
 var (
 	Info = &cmd.Info{
 		Use:   "channels",
-		Short: "",
-		Long:  "",
+		Short: "channel operations",
+		Long:  "Perform operations on channels.",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "add",
-				Short: "add a channel",
-				Long:  "add a channel",
+				Use:   "add <name> <endpoint>",
+				Short: "add a remote channel",
+				Long:  "Add a remote channel with the specified name and endpoint.",
 				Run:   cmd.ExecutorFunc(addChannel),
 				Flags: []*cmd.Flag{
 					{
@@ -38,15 +38,15 @@ var (
 			},
 
 			{
-				Use:   "remove",
+				Use:   "remove <name>",
 				Short: "remove a channel",
-				Long:  "remove a channel",
+				Long:  "Remove a channel with the specified name.",
 				Run:   cmd.ExecutorFunc(removeChannel),
 			},
 			{
 				Use:   "list",
-				Short: "list channels",
-				Long:  "list channels",
+				Short: "list available remote channels",
+				Long:  "List available remote channels.",
 				Run:   cmd.ExecutorFunc(listChannels),
 			},
 		},
