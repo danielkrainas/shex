@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/danielkrainas/gobag/context"
-	"github.com/danielkrainas/gobag/cqrs"
+	"github.com/danielkrainas/gobag/decouple/cqrs"
 	"github.com/gorilla/mux"
 
 	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/registry/actions"
 	"github.com/danielkrainas/shex/registry/configuration"
 )
 
@@ -19,7 +20,7 @@ type Api struct {
 	router *mux.Router
 }
 
-func NewApi(query *cqrs.QueryDispatcher, command *cqrs.CommandDispatcher, config *configuration.Config) (*Api, error) {
+func NewApi(actionPack actions.Pack) (*Api, error) {
 	api := &Api{
 		router: v1.RouterWithPrefix(""),
 	}
