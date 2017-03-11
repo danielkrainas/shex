@@ -15,7 +15,7 @@ import (
 	"github.com/danielkrainas/shex/registry/configuration"
 )
 
-func New(ctx context.Context, config *configuration.HTTPConfig, actionPack actions.Pack) (*Server, error) {
+func New(ctx context.Context, config configuration.HTTPConfig, actionPack actions.Pack) (*Server, error) {
 	api, err := handlers.NewApi(actionPack)
 	if err != nil {
 		return nil, fmt.Errorf("error creating server api: %v", err)
@@ -59,7 +59,7 @@ func New(ctx context.Context, config *configuration.HTTPConfig, actionPack actio
 
 type Server struct {
 	context.Context
-	config *configuration.HTTPConfig
+	config configuration.HTTPConfig
 	server *http.Server
 	api    *handlers.Api
 }
