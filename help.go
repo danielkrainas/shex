@@ -193,3 +193,28 @@ func init() {
 	helpIndex["u"] = helpIndex["uninstall"]
 	helpIndex["u self"] = helpIndex["uninstall self"]
 }
+
+/*func loadCommandMap() map[string]*command {
+	commands := map[string]*command{
+		"stat": &command{
+			action:    commandBootstrapper(execStat, 1),
+			usageLine: "stat <path>",
+			short:     "displays mod information",
+			long:      "display mod information for a given mod package",
+		},
+
+		"pull": &command{
+			action:    commandBootstrapper(execPull, 1),
+			usageLine: "pull <name> [local_name]",
+			short:     "pull a profile from a remote profile registry",
+			long:      "Pulls a profile from a profile registry and imports it locally.",
+		},
+
+		"push": &command{
+			action:    commandBootstrapper(execPush, 2),
+			usageLine: "push <profile> <remote_profile>",
+			short:     "pushes a profile to a profile registry",
+			long:      "Pushes a profile to the profile registry under the name specified by remote_profile. If the remote profile already exists, it will publish a new version.",
+		},
+	}
+}*/
