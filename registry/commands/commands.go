@@ -5,7 +5,7 @@ import (
 )
 
 type DeleteMod struct {
-	Name string
+	Token *v1.NameVersionToken
 }
 
 type StoreMod struct {
