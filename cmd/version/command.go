@@ -13,7 +13,7 @@ func init() {
 }
 
 func run(ctx context.Context, args []string) error {
-	fmt.Println("SHEx v" + acontext.GetVersion(ctx))
+	fmt.Println("Shex v" + acontext.GetVersion(ctx))
 	return nil
 }
 
