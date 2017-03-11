@@ -84,9 +84,18 @@
 			"importpath": "github.com/danielkrainas/gobag/context",
 			"repository": "https://github.com/danielkrainas/gobag",
 			"vcs": "git",
-			"revision": "c9f2815337c3a10a09e01f5a69e79dde87e2c112",
+			"revision": "418aa42335dc400beb53970dd46190316beb60be",
 			"branch": "master",
 			"path": "context",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/danielkrainas/gobag/util/slugify",
+			"repository": "https://github.com/danielkrainas/gobag",
+			"vcs": "git",
+			"revision": "c9f2815337c3a10a09e01f5a69e79dde87e2c112",
+			"branch": "master",
+			"path": "/util/slugify",
 			"notests": true
 		},
 		{
@@ -159,6 +168,14 @@
 			"repository": "https://github.com/magiconair/properties",
 			"vcs": "git",
 			"revision": "b3b15ef068fd0b17ddf408a23669f20811d194d2",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/metal3d/go-slugify",
+			"repository": "https://github.com/metal3d/go-slugify",
+			"vcs": "git",
+			"revision": "7ac2014b2f23e254684c08d597496681d12c6a8a",
 			"branch": "master",
 			"notests": true
 		},
