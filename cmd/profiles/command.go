@@ -81,8 +81,8 @@ func addProfile(ctx context.Context, args []string) error {
 	}
 
 	if err := m.AddProfile(profile); err != nil {
-		fmt.Printf("error saving profile: %v", err)
-		fmt.Printf("Could not save to: %s", profilePath)
+		fmt.Printf("error saving profile: %v\n", err)
+		fmt.Printf("Could not save to: %s\n", profilePath)
 		return nil
 	}
 
@@ -98,12 +98,12 @@ func removeProfile(ctx context.Context, args []string) error {
 	}
 
 	if len(args) < 1 {
-		return errors.New("you must specify a profile")
+		return errors.New("argument missing: id")
 	}
 
 	profileId := args[0]
 	if profile, err := m.RemoveProfile(profileId); err != nil {
-		fmt.Printf("could not remove the profile: %v", err)
+		fmt.Printf("could not remove the profile: %v\n", err)
 		return nil
 	} else {
 		fmt.Printf("%q has been removed\n", profile.Name)
@@ -130,9 +130,9 @@ func listProfiles(ctx context.Context, _ []string) error {
 /* Export Profile Command */
 func exportProfile(ctx context.Context, args []string) error {
 	if len(args) < 1 {
-		return errors.New("missing profile name")
+		return errors.New("argument missing: id")
 	} else if len(args) < 2 {
-		return errors.New("missing export path")
+		return errors.New("argument missing: path")
 	}
 
 	m, err := cmdutils.LoadManager(ctx)
@@ -148,7 +148,7 @@ func exportProfile(ctx context.Context, args []string) error {
 
 	profilePath := args[1]
 	if err := manager.SaveProfile(m.Fs(), profilePath, profile); err != nil {
-		fmt.Printf("error saving profile: %v", err)
+		fmt.Printf("error saving profile: %v\n", err)
 		return nil
 	}
 
