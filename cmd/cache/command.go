@@ -17,13 +17,13 @@ func init() {
 var (
 	Info = &cmd.Info{
 		Use:   "cache",
-		Short: "cache",
-		Long:  "cache",
+		Short: "perform operations on the local cache",
+		Long:  "Perform operations on the local cache.",
 		SubCommands: []*cmd.Info{
 			&cmd.Info{
 				Use:   "clean",
-				Short: "clean",
-				Long:  "clean",
+				Short: "clears the local cache",
+				Long:  "Clears the local cache of all contents.",
 				Run:   cmd.ExecutorFunc(cleanCache),
 			},
 		},
