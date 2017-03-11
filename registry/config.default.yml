@@ -1,6 +1,6 @@
 version: 1.0
 
-logging:
+log:
   level: info
   formatter: text
 #  fields:
