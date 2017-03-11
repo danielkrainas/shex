@@ -24,16 +24,16 @@ var (
 		Long:  "Perform operations on game folders.",
 		SubCommands: []*cmd.Info{
 			{
-				Use:   "add <name> <path>",
+				Use:   "add [alias] <path>",
 				Short: "add a game folder",
-				Long:  "Add the game folder at <path> with the name <name>",
+				Long:  "Add the game folder at <path> with the alias <alias>",
 				Run:   cmd.ExecutorFunc(addGame),
 			},
 
 			{
-				Use:   "remove <name>",
+				Use:   "remove <alias>",
 				Short: "remove a game folder",
-				Long:  "Remove the game folder with the name <name>",
+				Long:  "Remove the game folder with the alias <alias>",
 				Run:   cmd.ExecutorFunc(removeGame),
 			},
 			{
@@ -54,7 +54,7 @@ func addGame(ctx context.Context, args []string) error {
 	}
 
 	if len(args) < 1 {
-		return errors.New("invalid game path")
+		return errors.New("argument missing: path")
 	}
 
 	alias := args[0]
@@ -71,23 +71,23 @@ func addGame(ctx context.Context, args []string) error {
 	}
 
 	if err := m.AddGame(alias, mods.GameDir(gamePath)); err != nil {
-		fmt.Printf("error adding game: %v", err)
+		fmt.Printf("error adding game: %v\n", err)
 		return nil
 	}
 
 	if err := m.SaveConfig(); err != nil {
-		fmt.Printf("error saving config: %v", err)
+		fmt.Printf("error saving config: %v\n", err)
 		return nil
 	}
 
-	fmt.Printf("added %s as %q", gamePath, alias)
+	fmt.Printf("added %s as %q\n", gamePath, alias)
 	return nil
 }
 
 /* Remove Game Command */
 func removeGame(ctx context.Context, args []string) error {
 	if len(args) < 0 {
-		return errors.New("you must specify a game alias")
+		return errors.New("argument missing: alias")
 	}
 
 	m, err := cmdutils.LoadManager(ctx)
@@ -97,16 +97,16 @@ func removeGame(ctx context.Context, args []string) error {
 
 	alias := args[0]
 	if err := m.RemoveGame(alias); err != nil {
-		fmt.Printf("error removing game: %v", err)
+		fmt.Printf("error removing game: %v\n", err)
 		return nil
 	}
 
 	if err := m.SaveConfig(); err != nil {
-		fmt.Printf("error saving config: %v", err)
+		fmt.Printf("error saving config: %v\n", err)
 		return nil
 	}
 
-	fmt.Printf("game removed: %s", alias)
+	fmt.Printf("game removed: %s\n", alias)
 	return nil
 }
 
