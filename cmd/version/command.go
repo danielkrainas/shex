@@ -13,7 +13,7 @@ func init() {
 }
 
 func run(ctx context.Context, args []string) error {
-	fmt.Println("Shex v" + acontext.GetVersion(ctx))
+	fmt.Printf("%s v%s\n", acontext.GetStringValue(ctx, "app.name"), acontext.GetVersion(ctx))
 	return nil
 }
 

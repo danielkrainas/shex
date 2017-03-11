@@ -3,13 +3,17 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/danielkrainas/context"
+	"github.com/danielkrainas/gobag/context"
+	"github.com/danielkrainas/gobag/cqrs"
 	"github.com/gorilla/mux"
 
 	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shex/registry/configuration"
 )
 
-const ApiVersionHeader = "Shex-Version"
+const ServerVersionHeader = "Shex-Registry-Version"
+const ApiVersionHeader = "Shex-Api-Version"
+const ApiVersion = "1"
 
 type Api struct {
 	router *mux.Router
@@ -36,7 +40,8 @@ func (api *Api) dispatcher(dispatch http.HandlerFunc) http.Handler {
 func (api *Api) ServerHTTP(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	w.Header().Add(ApiVersionHeader, acontext.GetVersion(r.Context()))
+	w.Header().Add(ServerVersionHeader, acontext.GetVersion(r.Context()))
+	w.Header().Add(ApiVersionHeader, ApiVersion)
 	app.router.ServeHTTP(w, r)
 }
 

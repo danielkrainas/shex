@@ -11,7 +11,8 @@ import (
 	"github.com/urfave/negroni"
 
 	"github.com/danielkrainas/shex/api/server/handlers"
-	"github.com/danielkrainas/shex/storage"
+	"github.com/danielkrainas/shex/registry/configuration"
+	"github.com/danielkrainas/shex/registry/storage"
 )
 
 func New(ctx context.Context, config *configuration.Config) (*Server, error) {

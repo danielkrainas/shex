@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -15,15 +16,16 @@ import (
 
 var appVersion string
 
-const DEFAULT_VERSION = "0.0.0-dev"
+const defaultVersion = "0.0.0-dev"
 
 func main() {
 	if appVersion == "" {
-		appVersion = DEFAULT_VERSION
+		appVersion = defaultVersion
 	}
 
 	rand.Seed(time.Now().Unix())
 	ctx := acontext.WithVersion(acontext.Background(), appVersion)
+	ctx = context.WithValue(ctx, "app.name", registry.Info.Use)
 
 	dispatch := cmd.CreateDispatcher(ctx, registry.Info)
 	if err := dispatch(); err != nil {
