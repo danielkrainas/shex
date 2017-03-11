@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/danielkrainas/gobag/cmd"
 
@@ -20,7 +19,7 @@ var (
 		Short: "perform operations on the local cache",
 		Long:  "Perform operations on the local cache.",
 		SubCommands: []*cmd.Info{
-			&cmd.Info{
+			{
 				Use:   "clean",
 				Short: "clears the local cache",
 				Long:  "Clears the local cache of all contents.",
@@ -37,10 +36,10 @@ func cleanCache(ctx context.Context, _ []string) error {
 	}
 
 	if err := m.ClearCache(); err != nil {
-		fmt.Printf("error clearing cache: %v", err)
+		fmt.Printf("error clearing cache: %v\n", err)
 		return nil
 	}
 
-	log.Printf("cache cleared")
+	fmt.Println("cache cleared")
 	return nil
 }
