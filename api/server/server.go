@@ -7,16 +7,15 @@ import (
 	"net/http"
 
 	"github.com/danielkrainas/gobag/context"
-	"github.com/danielkrainas/gobag/decouple/cqrs"
+	"github.com/rs/cors"
 	"github.com/urfave/negroni"
 
 	"github.com/danielkrainas/shex/api/server/handlers"
 	"github.com/danielkrainas/shex/registry/actions"
 	"github.com/danielkrainas/shex/registry/configuration"
-	"github.com/danielkrainas/shex/registry/storage"
 )
 
-func New(ctx context.Context, config *configuration.HTTPConfig, actionPack action.Pack) (*Server, error) {
+func New(ctx context.Context, config *configuration.HTTPConfig, actionPack actions.Pack) (*Server, error) {
 	api, err := handlers.NewApi(actionPack)
 	if err != nil {
 		return nil, fmt.Errorf("error creating server api: %v", err)
@@ -72,6 +71,6 @@ func (server *Server) ListenAndServe() error {
 		return err
 	}
 
-	acontext.GetLogger(server.api).Infof("listening on %v", ln.Addr())
+	acontext.GetLogger(server).Infof("listening on %v", ln.Addr())
 	return server.server.Serve(ln)
 }
