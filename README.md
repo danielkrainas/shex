@@ -16,7 +16,11 @@ If you have Go install on your computer, you can use the `go get` command to
 
 ## Bugs and Feedback
 
-If you see a bug or have a suggestion, feel free to open an issue [here](https://github.com/danielkrainas/Shex/issues).
+If you see a bug or have a suggestion, feel free to open an issue [here](https://github.com/danielkrainas/shex/issues).
+
+## Contributions
+
+PR's welcome! There are no strict style guidelines, just follow best practices and try to keep with the general look & feel of the code present. All submissions should atleast be `go fmt -s` and have a test to verify *(if applicable)*.
 
 ## License
 
