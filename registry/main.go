@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"math/rand"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -26,7 +27,7 @@ func main() {
 
 	rand.Seed(time.Now().Unix())
 	ctx := acontext.WithVersion(acontext.Background(), appVersion)
-	ctx = context.WithValue(ctx, "app.name", registry.Info.Use)
+	ctx = context.WithValue(ctx, "app.name", strings.Title(registry.Info.Use))
 
 	dispatch := cmd.CreateDispatcher(ctx, registry.Info)
 	if err := dispatch(); err != nil {
