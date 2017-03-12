@@ -10,11 +10,12 @@ import (
 
 func Mods(actionPack actions.Pack) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost {
+		switch r.Method {
+		case http.MethodPost:
 			CreateMod(actionPack, w, r)
-		} else if r.Method == http.MethodGet {
+		case http.MethodGet:
 			SearchMods(actionPack, w, r)
-		} else {
+		default:
 			http.NotFound(w, r)
 		}
 	})
