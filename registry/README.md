@@ -83,7 +83,7 @@ If you see a bug or have a suggestion, feel free to open an issue [here](https:/
 
 ## License
 
-[../Unlicense](http://unlicense.org/UNLICENSE). This is a Public Domain work. 
+[Unlicense](http://unlicense.org/UNLICENSE). This is a Public Domain work.
 
 [![Public Domain](https://licensebuttons.net/p/mark/1.0/88x31.png)](http://questioncopyright.org/promise)
 
