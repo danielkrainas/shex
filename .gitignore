@@ -4,3 +4,4 @@ dist
 shex*
 update
 registry/registry*
+registry/config.local.yml
