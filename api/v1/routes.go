@@ -4,6 +4,7 @@ import "github.com/gorilla/mux"
 
 const (
 	RouteNameBase = "base"
+	RouteNameMods = "mods"
 )
 
 func Router() *mux.Router {
