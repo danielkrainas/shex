@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
+	"github.com/danielkrainas/gobag/api/errcode"
 	"github.com/danielkrainas/gobag/context"
 	"github.com/danielkrainas/gobag/decouple/cqrs"
 
@@ -25,7 +28,26 @@ func Mods(actionPack actions.Pack) http.HandlerFunc {
 }
 
 func CreateMod(c cqrs.CommandHandler, w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	ctx := r.Context()
+	log := acontext.GetLogger(ctx)
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Error(err)
+		acontext.TrackError(ctx, errcode.ErrorCodeUnknown.WithDetail(err))
+		return
+	}
+
+	m := &v1.ModInfo{}
+	if err = json.Unmarshal(body, m); err != nil {
+		log.Error(err)
+		acontext.TrackError(ctx, errcode.ErrorCodeUnknown.WithDetail(err))
+		return
+	}
+
+	log.Infof("mod %s@%s created", m.Name, m.SemVersion)
+	if err := v1.ServeJSON(w, m); err != nil {
+		log.Errorf("error sending user json: %v", err)
+	}
 }
 
 func SearchMods(q cqrs.QueryExecutor, w http.ResponseWriter, r *http.Request) {
