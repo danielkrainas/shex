@@ -2,8 +2,6 @@
 
 Shex is a [Stonehearth](http://stonehearth.net/) mod management commandline tool, modeled after other package managers such as gvt, npm, and bower.
 
-For instructions on setting up and hosting a Shex registry, see the [registry's documentation](registry/README.md).
-
 ## Installation
 
 Shex may be used as a standalone application or installed to make it more easily accessible.
