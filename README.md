@@ -18,7 +18,7 @@ If you see a bug or have a suggestion, feel free to open an issue [here](https:/
 
 ## Contributions
 
-PR's welcome! There are no strict style guidelines, just follow best practices and try to keep with the general look & feel of the code present. All submissions should atleast be `go fmt -s` and have a test to verify *(if applicable)*.
+PR's welcome! There are no strict style guidelines, just follow best practices and try to keep with the general look & feel of the code present. All submissions should be `go fmt -s` and have a test to verify *(if applicable)*.
 
 ## License
 
