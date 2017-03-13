@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/danielkrainas/gobag/cmd"
+	"github.com/danielkrainas/shexd/api/v1"
 
-	"github.com/danielkrainas/shex/api/v1"
 	"github.com/danielkrainas/shex/cmd/cmdutils"
 	"github.com/danielkrainas/shex/manager"
 )

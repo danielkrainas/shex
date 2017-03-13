@@ -7,7 +7,8 @@ import (
 	"github.com/danielkrainas/gobag/cmd"
 	"github.com/danielkrainas/gobag/context"
 
-	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shexd/api/v1"
+
 	"github.com/danielkrainas/shex/cmd/cmdutils"
 	"github.com/danielkrainas/shex/manager"
 	"github.com/danielkrainas/shex/mods"

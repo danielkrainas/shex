@@ -11,8 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/danielkrainas/shex/api/client"
-	"github.com/danielkrainas/shex/api/v1"
+	"github.com/danielkrainas/shexd/api/client"
+	"github.com/danielkrainas/shexd/api/v1"
+
 	"github.com/danielkrainas/shex/utils/sysfs"
 )
 
