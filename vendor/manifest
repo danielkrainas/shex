@@ -124,6 +124,60 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/danielkrainas/shexd/api/client",
+			"repository": "https://github.com/danielkrainas/shexd",
+			"vcs": "git",
+			"revision": "f8cc4492c74af45a4d2e6399cbd9ad6a6566468f",
+			"branch": "master",
+			"path": "/api/client",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/danielkrainas/shexd/api/v1",
+			"repository": "https://github.com/danielkrainas/shexd",
+			"vcs": "git",
+			"revision": "f8cc4492c74af45a4d2e6399cbd9ad6a6566468f",
+			"branch": "master",
+			"path": "api/v1",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/danielkrainas/shexd/vendor/github.com/danielkrainas/gobag/api/describe",
+			"repository": "https://github.com/danielkrainas/shexd",
+			"vcs": "git",
+			"revision": "f8cc4492c74af45a4d2e6399cbd9ad6a6566468f",
+			"branch": "master",
+			"path": "vendor/github.com/danielkrainas/gobag/api/describe",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/danielkrainas/shexd/vendor/github.com/danielkrainas/gobag/api/errcode",
+			"repository": "https://github.com/danielkrainas/shexd",
+			"vcs": "git",
+			"revision": "f8cc4492c74af45a4d2e6399cbd9ad6a6566468f",
+			"branch": "master",
+			"path": "vendor/github.com/danielkrainas/gobag/api/errcode",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/danielkrainas/shexd/vendor/github.com/gorilla/context",
+			"repository": "https://github.com/danielkrainas/shexd",
+			"vcs": "git",
+			"revision": "f8cc4492c74af45a4d2e6399cbd9ad6a6566468f",
+			"branch": "master",
+			"path": "vendor/github.com/gorilla/context",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/danielkrainas/shexd/vendor/github.com/gorilla/mux",
+			"repository": "https://github.com/danielkrainas/shexd",
+			"vcs": "git",
+			"revision": "f8cc4492c74af45a4d2e6399cbd9ad6a6566468f",
+			"branch": "master",
+			"path": "vendor/github.com/gorilla/mux",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/fsnotify/fsnotify",
 			"repository": "https://github.com/fsnotify/fsnotify",
 			"vcs": "git",
