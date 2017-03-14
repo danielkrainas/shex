@@ -2,15 +2,18 @@ package mods
 
 import (
 	"archive/zip"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/danielkrainas/gobag/context"
 	"github.com/danielkrainas/shexd/api/client"
 	"github.com/danielkrainas/shexd/api/v1"
 
@@ -34,6 +37,12 @@ func GetLocalModPathName(remoteName string, version string) string {
 
 }
 */
+
+func newClient(ctx context.Context, endpoint string) *client.Client {
+	c := client.New(endpoint, http.DefaultClient)
+	c.UserAgent = "shex/" + acontext.GetVersion(ctx)
+	return c
+}
 
 func CreateGameManifest() *GameManifest {
 	manifest := &GameManifest{
@@ -119,7 +128,8 @@ func Uninstall(fs sysfs.SysFs, game GameDir, manifest *GameManifest, name string
 }
 
 func Install(fs sysfs.SysFs, game GameDir, ch *Channel, profile *v1.Profile, token *v1.NameVersionToken) (*v1.ModInfo, error) {
-	source := ch.Protocol + "://" + ch.Endpoint
+	//source := ch.Protocol + "://" + ch.Endpoint
+	/*c := newClient(source)
 	remoteInfo, err := client.DownloadModInfo(source, token)
 	if err != nil {
 		return nil, err
@@ -131,7 +141,9 @@ func Install(fs sysfs.SysFs, game GameDir, ch *Channel, profile *v1.Profile, tok
 		return nil, err
 	}
 
-	return GetModInfo(fs, localPath)
+	return GetModInfo(fs, localPath)*/
+
+	return nil, errors.New("")
 }
 
 func GetModInfo(fs sysfs.SysFs, modPath string) (*v1.ModInfo, error) {
